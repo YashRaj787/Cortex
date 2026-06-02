@@ -3,6 +3,7 @@ export default function TagsPanel({
   newTagName,
   onNewTagNameChange,
   onCreateTag,
+  onDeleteTag,
   loading,
 }) {
   return (
@@ -26,9 +27,19 @@ export default function TagsPanel({
         ) : tags.length === 0 ? (
           <p className="muted">No tags yet. Create one above.</p>
         ) : (
-          <ul className="item-list">
+          <ul className="folder-list">
             {tags.map((tag) => (
-              <li key={tag.id}>{tag.name}</li>
+              <li key={tag.id} className="folder-row">
+                <span className="folder-name">{tag.name}</span>
+                <button
+                  type="button"
+                  className="btn danger btn-inline"
+                  disabled={loading}
+                  onClick={() => onDeleteTag(tag.id)}
+                >
+                  Delete
+                </button>
+              </li>
             ))}
           </ul>
         )}

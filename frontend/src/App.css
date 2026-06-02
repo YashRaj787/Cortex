@@ -170,6 +170,9 @@
   background: var(--code-bg);
   color: var(--text);
   cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
 }
 
 .tab.active {

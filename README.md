@@ -1,13 +1,16 @@
 # Cortex
 
-AI-powered knowledge management platform (monorepo).
+Knowledge management app (monorepo): notes, folders, and tags with JWT auth.
 
 ## Structure
 
 ```
 Cortex/
-├── backend/     Express API + PostgreSQL
-└── frontend/    React + Vite + Tailwind
+├── backend/          Express API + PostgreSQL
+├── frontend/         React + Vite
+├── package.json      Root scripts (dev, migrate, test)
+├── DEPLOY.md         Deployment guide
+└── GITHUB.md         Push to GitHub
 ```
 
 ## Prerequisites
@@ -29,7 +32,7 @@ Cortex/
    cp backend/.env.example backend/.env
    ```
 
-   Edit `backend/.env` with your database credentials and `JWT_SECRET`.
+   Edit `backend/.env` with database credentials and `JWT_SECRET` (32+ characters).
 
 3. Create database and migrate:
 
@@ -41,7 +44,7 @@ Cortex/
    npm run migrate
    ```
 
-4. Run API and frontend (two terminals):
+4. Run API and frontend (two terminals from repo root):
 
    ```bash
    npm run dev:api
@@ -51,8 +54,41 @@ Cortex/
 - API: http://localhost:3000  
 - App: http://localhost:5173  
 
+## Scripts (repo root)
+
+| Command | Description |
+|---------|-------------|
+| `npm run install:all` | Install backend + frontend deps |
+| `npm run dev:api` | API with nodemon |
+| `npm run dev:web` | Vite dev server |
+| `npm run migrate` | Apply SQL migration |
+| `npm run test` | Backend API smoke tests |
+| `npm run start:api` | Production API start |
+
+## Frontend routes
+
+| Path | Screen |
+|------|--------|
+| `/login` | Sign up / log in |
+| `/notes` | Notes list, create, edit, delete |
+| `/folders` | Folder CRUD |
+| `/tags` | Tag create / delete |
+
+JWT is stored in `localStorage` (`cortex_token`). Protected API calls send `Authorization: Bearer <token>`.
+
 ## API
 
-Base path: `/api/v1` — see `backend/` for auth, notes, folders, tags.
+Base path: `/api/v1` — auth, notes, folders, tags.
 
-Send JWT: `Authorization: Bearer <token>`
+## Tests
+
+Requires a running Postgres DB and valid `backend/.env`:
+
+```bash
+npm run test
+```
+
+## Next steps
+
+- Push to GitHub: see [GITHUB.md](./GITHUB.md)
+- Deploy: see [DEPLOY.md](./DEPLOY.md)
