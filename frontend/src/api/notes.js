@@ -1,10 +1,17 @@
 import { api } from "./client.js";
 
-export function listNotes(folderFilter = "all") {
-  let path = "/api/v1/notes";
+export function listNotes(folderFilter = "all", searchQuery = "") {
+  const params = new URLSearchParams();
   if (folderFilter !== "all" && folderFilter !== "none") {
-    path += `?folder_id=${folderFilter}`;
+    params.set("folder_id", folderFilter);
   }
+  const q = searchQuery.trim();
+  if (q) {
+    params.set("q", q);
+  }
+  const query = params.toString();
+  const path = query ? `/api/v1/notes?${query}` : "/api/v1/notes";
+
   return api(path).then((result) => {
     let data = result.data ?? [];
     if (folderFilter === "none") {

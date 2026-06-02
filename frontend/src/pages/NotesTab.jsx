@@ -10,6 +10,7 @@ export default function NotesTab() {
     selectedNote,
     loading,
     handleNotesFilterChange,
+    handleNoteSearchChange,
     handleCreateNote,
     handleUpdateNote,
     handleSelectNote,
@@ -24,6 +25,7 @@ export default function NotesTab() {
       folders={folders}
       notesFilter={notesFilter}
       onNotesFilterChange={handleNotesFilterChange}
+      onSearchChange={handleNoteSearchChange}
       selectedNote={selectedNote}
       loading={loading}
       onCreateNote={handleCreateNote}

@@ -50,6 +50,7 @@ export default function NotesPanel({
   folders,
   notesFilter,
   onNotesFilterChange,
+  onSearchChange,
   selectedNote,
   loading,
   onCreateNote,
@@ -58,6 +59,7 @@ export default function NotesPanel({
   onClearSelection,
   onDeleteNote,
 }) {
+  const [searchInput, setSearchInput] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [folderId, setFolderId] = useState(null);
@@ -72,6 +74,13 @@ export default function NotesPanel({
     if (id == null) return null;
     return folders.find((f) => f.id === id)?.name ?? "Unknown folder";
   }
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onSearchChange(searchInput);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   useEffect(() => {
     if (!selectedNote) {
@@ -294,10 +303,25 @@ export default function NotesPanel({
             </select>
           </label>
         </div>
+        <label className="search-label">
+          Search
+          <input
+            type="search"
+            className="select-input"
+            placeholder="Search title or content…"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            disabled={loading}
+          />
+        </label>
         {loading && notes.length === 0 ? (
           <p className="muted">Loading notes…</p>
         ) : notes.length === 0 ? (
-          <p className="muted">No notes in this view. Create one above.</p>
+          <p className="muted">
+            {searchInput.trim()
+              ? "No notes match your search."
+              : "No notes in this view. Create one above."}
+          </p>
         ) : (
           <ul className="note-list">
             {notes.map((note) => {

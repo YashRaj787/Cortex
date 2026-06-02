@@ -217,6 +217,15 @@
   margin: 0;
 }
 
+.search-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: var(--text-h);
+}
+
 .tag-picker {
   border: none;
   margin: 0 0 16px;

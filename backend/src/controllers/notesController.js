@@ -47,7 +47,7 @@ const linkTagsToNote = async (client, noteId, tagIds) => {
 };
 
 const listNotes = async (req, res) => {
-  const { folder_id } = req.query;
+  const { folder_id, q } = req.query;
 
   try {
     let query = `
@@ -56,10 +56,18 @@ const listNotes = async (req, res) => {
       WHERE user_id = $1
     `;
     const params = [req.user.id];
+    let paramIndex = 2;
 
     if (folder_id !== undefined && folder_id !== "") {
-      query += ` AND folder_id = $2`;
+      query += ` AND folder_id = $${paramIndex++}`;
       params.push(folder_id);
+    }
+
+    const search = q && String(q).trim();
+    if (search) {
+      query += ` AND (title ILIKE $${paramIndex} OR content ILIKE $${paramIndex})`;
+      params.push(`%${search}%`);
+      paramIndex += 1;
     }
 
     query += ` ORDER BY updated_at DESC`;

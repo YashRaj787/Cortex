@@ -18,6 +18,7 @@ export default function DashboardPage() {
   const [folders, setFolders] = useState([]);
   const [notes, setNotes] = useState([]);
   const [notesFilter, setNotesFilter] = useState("all");
+  const [noteSearch, setNoteSearch] = useState("");
   const [selectedNote, setSelectedNote] = useState(null);
   const [newTagName, setNewTagName] = useState("");
   const [newFolderName, setNewFolderName] = useState("");
@@ -32,13 +33,14 @@ export default function DashboardPage() {
     setFolders(await foldersApi.listFolders());
   }
 
-  async function loadNotes(filter = notesFilter) {
-    setNotes(await notesApi.listNotes(filter));
+  async function loadNotes(filter = notesFilter, search = noteSearch) {
+    setNotes(await notesApi.listNotes(filter, search));
   }
 
   async function loadDashboard() {
-    await Promise.all([loadTags(), loadFolders(), loadNotes("all")]);
+    await Promise.all([loadTags(), loadFolders(), loadNotes("all", "")]);
     setNotesFilter("all");
+    setNoteSearch("");
   }
 
   useEffect(() => {
@@ -94,7 +96,21 @@ export default function DashboardPage() {
       if (selectedNote) {
         setSelectedNote(await notesApi.getNote(selectedNote.id));
       }
-      await loadNotes(notesFilter);
+      await loadNotes(notesFilter, noteSearch);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleNoteSearchChange(search) {
+    setNoteSearch(search);
+    setSelectedNote(null);
+    setError("");
+    setLoading(true);
+    try {
+      await loadNotes(notesFilter, search);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -108,7 +124,7 @@ export default function DashboardPage() {
     setError("");
     setLoading(true);
     try {
-      await loadNotes(filter);
+      await loadNotes(filter, noteSearch);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -157,7 +173,7 @@ export default function DashboardPage() {
     try {
       await foldersApi.deleteFolder(id);
       await loadFolders();
-      await loadNotes(notesFilter);
+      await loadNotes(notesFilter, noteSearch);
       if (selectedNote?.folder_id === id) {
         setSelectedNote(await notesApi.getNote(selectedNote.id));
       }
@@ -173,7 +189,7 @@ export default function DashboardPage() {
     setLoading(true);
     try {
       await notesApi.createNote(payload);
-      await loadNotes(notesFilter);
+      await loadNotes(notesFilter, noteSearch);
       return true;
     } catch (err) {
       setError(err.message);
@@ -201,7 +217,7 @@ export default function DashboardPage() {
     try {
       const updated = await notesApi.updateNote(payload.id, payload);
       setSelectedNote(updated);
-      await loadNotes(notesFilter);
+      await loadNotes(notesFilter, noteSearch);
       return true;
     } catch (err) {
       setError(err.message);
@@ -218,7 +234,7 @@ export default function DashboardPage() {
     try {
       await notesApi.deleteNote(noteId);
       setSelectedNote(null);
-      await loadNotes(notesFilter);
+      await loadNotes(notesFilter, noteSearch);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -245,6 +261,7 @@ export default function DashboardPage() {
     handleCreateTag,
     handleDeleteTag,
     handleNotesFilterChange,
+    handleNoteSearchChange,
     handleCreateFolder,
     handleRenameFolder,
     handleDeleteFolder,

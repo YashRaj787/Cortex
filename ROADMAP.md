@@ -4,8 +4,8 @@ Track progress through each stage. Complete steps in order.
 
 | Step | Focus | Status |
 |------|--------|--------|
-| **1** | GitHub + live deploy (Render/Vercel/Neon) | In progress |
-| **2** | Search notes (SQL + UI) | Pending |
+| **1** | GitHub + live deploy (Render/Vercel/Neon) | Ready — follow [STEP-01](./docs/STEP-01-LIVE.md) |
+| **2** | Search notes (SQL + UI) | Done |
 | **3** | AI summarize note (OpenAI) | Pending |
 | **4** | Clean architecture (services + errors) | Pending |
 | **5** | Docker Compose | Pending |
@@ -15,4 +15,4 @@ Track progress through each stage. Complete steps in order.
 | **9** | Semantic search | Pending |
 | **10** | Rate limits, logging, monitoring | Pending |
 
-**Current step:** 1 — see [docs/STEP-01-LIVE.md](./docs/STEP-01-LIVE.md)
+**Current step:** 3 — AI summarize (Step 1 needs your GitHub/deploy; Step 2 is in code)
