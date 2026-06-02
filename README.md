@@ -88,7 +88,11 @@ Requires a running Postgres DB and valid `backend/.env`:
 npm run test
 ```
 
-## Next steps
+## Roadmap
 
-- Push to GitHub: see [GITHUB.md](./GITHUB.md)
-- Deploy: see [DEPLOY.md](./DEPLOY.md)
+We are building toward a live, AI-powered knowledge app in ordered steps.
+
+**→ [ROADMAP.md](./ROADMAP.md)** — full checklist  
+**→ [docs/STEP-01-LIVE.md](./docs/STEP-01-LIVE.md)** — **current: deploy to the internet**
+
+Quick links: [GITHUB.md](./GITHUB.md) · [DEPLOY.md](./DEPLOY.md)
