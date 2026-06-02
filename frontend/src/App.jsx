@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
 import { api, getToken, setToken } from "./api/client.js";
+import NotesPanel from "./components/NotesPanel.jsx";
+import TagsPanel from "./components/TagsPanel.jsx";
 import "./App.css";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => Boolean(getToken()));
   const [mode, setMode] = useState("login");
+  const [activeTab, setActiveTab] = useState("notes");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [tags, setTags] = useState([]);
+  const [notes, setNotes] = useState([]);
+  const [selectedNote, setSelectedNote] = useState(null);
   const [newTagName, setNewTagName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,11 +23,20 @@ function App() {
     setTags(result.data ?? []);
   }
 
+  async function loadNotes() {
+    const result = await api("/api/v1/notes");
+    setNotes(result.data ?? []);
+  }
+
+  async function loadDashboard() {
+    await Promise.all([loadTags(), loadNotes()]);
+  }
+
   useEffect(() => {
     if (!isLoggedIn) return;
 
     setLoading(true);
-    loadTags()
+    loadDashboard()
       .catch((err) => {
         setError(err.message);
         handleLogout();
@@ -79,11 +93,84 @@ function App() {
     }
   }
 
+  async function handleCreateNote({ title, content, tagIds }) {
+    setError("");
+    setLoading(true);
+
+    try {
+      await api("/api/v1/notes", {
+        method: "POST",
+        body: JSON.stringify({ title, content, tagIds }),
+      });
+      await loadNotes();
+      return true;
+    } catch (err) {
+      setError(err.message);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSelectNote(noteId) {
+    setError("");
+    setLoading(true);
+
+    try {
+      const result = await api(`/api/v1/notes/${noteId}`);
+      setSelectedNote(result.data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleUpdateNote({ id, title, content, tagIds }) {
+    setError("");
+    setLoading(true);
+
+    try {
+      const result = await api(`/api/v1/notes/${id}`, {
+        method: "PUT",
+        body: JSON.stringify({ title, content, tagIds }),
+      });
+      setSelectedNote(result.data);
+      await loadNotes();
+      return true;
+    } catch (err) {
+      setError(err.message);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleDeleteNote(noteId) {
+    if (!window.confirm("Delete this note?")) return;
+
+    setError("");
+    setLoading(true);
+
+    try {
+      await api(`/api/v1/notes/${noteId}`, { method: "DELETE" });
+      setSelectedNote(null);
+      await loadNotes();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   function handleLogout() {
     setToken(null);
     setIsLoggedIn(false);
     setTags([]);
+    setNotes([]);
+    setSelectedNote(null);
     setError("");
+    setActiveTab("notes");
   }
 
   if (!isLoggedIn) {
@@ -91,7 +178,7 @@ function App() {
       <main className="app">
         <header className="app-header">
           <h1>Cortex</h1>
-          <p className="muted">Step C — login, then load your tags</p>
+          <p className="muted">Log in to manage notes and tags</p>
         </header>
 
         <form className="card" onSubmit={handleAuthSubmit}>
@@ -176,10 +263,10 @@ function App() {
   }
 
   return (
-    <main className="app">
+    <main className="app app-wide">
       <header className="app-header row">
         <div>
-          <h1>Your tags</h1>
+          <h1>Cortex</h1>
           <p className="muted">{email}</p>
         </div>
         <button type="button" className="btn" onClick={handleLogout}>
@@ -187,34 +274,49 @@ function App() {
         </button>
       </header>
 
-      <form className="card row-form" onSubmit={handleCreateTag}>
-        <input
-          type="text"
-          placeholder="New tag name"
-          value={newTagName}
-          onChange={(e) => setNewTagName(e.target.value)}
-          maxLength={100}
-        />
-        <button type="submit" className="btn primary" disabled={loading}>
-          Add tag
+      <nav className="tabs" aria-label="Main">
+        <button
+          type="button"
+          className={`tab ${activeTab === "notes" ? "active" : ""}`}
+          onClick={() => {
+            setActiveTab("notes");
+            setSelectedNote(null);
+          }}
+        >
+          Notes
         </button>
-      </form>
+        <button
+          type="button"
+          className={`tab ${activeTab === "tags" ? "active" : ""}`}
+          onClick={() => setActiveTab("tags")}
+        >
+          Tags
+        </button>
+      </nav>
 
       {error && <p className="error">{error}</p>}
 
-      <section className="card">
-        {loading && tags.length === 0 ? (
-          <p className="muted">Loading tags…</p>
-        ) : tags.length === 0 ? (
-          <p className="muted">No tags yet. Create one above.</p>
-        ) : (
-          <ul className="tag-list">
-            {tags.map((tag) => (
-              <li key={tag.id}>{tag.name}</li>
-            ))}
-          </ul>
-        )}
-      </section>
+      {activeTab === "notes" ? (
+        <NotesPanel
+          notes={notes}
+          tags={tags}
+          selectedNote={selectedNote}
+          loading={loading}
+          onCreateNote={handleCreateNote}
+          onUpdateNote={handleUpdateNote}
+          onSelectNote={handleSelectNote}
+          onClearSelection={() => setSelectedNote(null)}
+          onDeleteNote={handleDeleteNote}
+        />
+      ) : (
+        <TagsPanel
+          tags={tags}
+          newTagName={newTagName}
+          onNewTagNameChange={setNewTagName}
+          onCreateTag={handleCreateTag}
+          loading={loading}
+        />
+      )}
     </main>
   );
 }
