@@ -22,9 +22,34 @@ function TagPicker({ tags, selectedTagIds, onToggle }) {
   );
 }
 
+function FolderSelect({ folders, value, onChange }) {
+  return (
+    <label>
+      Folder (optional)
+      <select
+        className="select-input"
+        value={value ?? ""}
+        onChange={(e) =>
+          onChange(e.target.value === "" ? null : Number(e.target.value))
+        }
+      >
+        <option value="">None</option>
+        {folders.map((folder) => (
+          <option key={folder.id} value={folder.id}>
+            {folder.name}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 export default function NotesPanel({
   notes,
   tags,
+  folders,
+  notesFilter,
+  onNotesFilterChange,
   selectedNote,
   loading,
   onCreateNote,
@@ -35,11 +60,18 @@ export default function NotesPanel({
 }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [folderId, setFolderId] = useState(null);
   const [selectedTagIds, setSelectedTagIds] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
+  const [editFolderId, setEditFolderId] = useState(null);
   const [editTagIds, setEditTagIds] = useState([]);
+
+  function folderName(id) {
+    if (id == null) return null;
+    return folders.find((f) => f.id === id)?.name ?? "Unknown folder";
+  }
 
   useEffect(() => {
     if (!selectedNote) {
@@ -50,6 +82,7 @@ export default function NotesPanel({
     setIsEditing(false);
     setEditTitle(selectedNote.title);
     setEditContent(selectedNote.content ?? "");
+    setEditFolderId(selectedNote.folder_id ?? null);
     setEditTagIds(selectedNote.tags?.map((t) => t.id) ?? []);
   }, [selectedNote]);
 
@@ -69,11 +102,13 @@ export default function NotesPanel({
       title: title.trim(),
       content,
       tagIds: selectedTagIds,
+      folder_id: folderId,
     });
 
     if (ok) {
       setTitle("");
       setContent("");
+      setFolderId(null);
       setSelectedTagIds([]);
     }
   }
@@ -81,6 +116,7 @@ export default function NotesPanel({
   function resetEditFields() {
     setEditTitle(selectedNote.title);
     setEditContent(selectedNote.content ?? "");
+    setEditFolderId(selectedNote.folder_id ?? null);
     setEditTagIds(selectedNote.tags?.map((t) => t.id) ?? []);
   }
 
@@ -93,6 +129,7 @@ export default function NotesPanel({
       title: editTitle.trim(),
       content: editContent,
       tagIds: editTagIds,
+      folder_id: editFolderId,
     });
 
     if (ok) {
@@ -106,6 +143,8 @@ export default function NotesPanel({
   }
 
   if (selectedNote) {
+    const noteFolder = folderName(selectedNote.folder_id);
+
     return (
       <section className="card note-detail">
         <button type="button" className="link back-link" onClick={onClearSelection}>
@@ -133,6 +172,11 @@ export default function NotesPanel({
                 rows={6}
               />
             </label>
+            <FolderSelect
+              folders={folders}
+              value={editFolderId}
+              onChange={setEditFolderId}
+            />
             <TagPicker
               tags={tags}
               selectedTagIds={editTagIds}
@@ -159,6 +203,7 @@ export default function NotesPanel({
           <>
             <h2 className="note-title">{selectedNote.title}</h2>
             <p className="note-meta muted">
+              {noteFolder && <span className="folder-badge">{noteFolder}</span>}
               Updated {new Date(selectedNote.updated_at).toLocaleString()}
             </p>
             <div className="note-content">{selectedNote.content || "—"}</div>
@@ -217,6 +262,7 @@ export default function NotesPanel({
             rows={4}
           />
         </label>
+        <FolderSelect folders={folders} value={folderId} onChange={setFolderId} />
         <TagPicker
           tags={tags}
           selectedTagIds={selectedTagIds}
@@ -228,27 +274,52 @@ export default function NotesPanel({
       </form>
 
       <section className="card">
-        <h2 className="section-heading">Your notes</h2>
+        <div className="notes-list-header">
+          <h2 className="section-heading">Your notes</h2>
+          <label className="filter-label">
+            <span className="sr-only">Filter by folder</span>
+            <select
+              className="select-input"
+              value={notesFilter}
+              onChange={(e) => onNotesFilterChange(e.target.value)}
+              disabled={loading}
+            >
+              <option value="all">All notes</option>
+              <option value="none">Unfiled</option>
+              {folders.map((folder) => (
+                <option key={folder.id} value={String(folder.id)}>
+                  {folder.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
         {loading && notes.length === 0 ? (
           <p className="muted">Loading notes…</p>
         ) : notes.length === 0 ? (
-          <p className="muted">No notes yet. Create one above.</p>
+          <p className="muted">No notes in this view. Create one above.</p>
         ) : (
           <ul className="note-list">
-            {notes.map((note) => (
-              <li key={note.id}>
-                <button
-                  type="button"
-                  className="note-list-item"
-                  onClick={() => onSelectNote(note.id)}
-                >
-                  <span className="note-list-title">{note.title}</span>
-                  <span className="note-list-preview muted">
-                    {preview(note.content)}
-                  </span>
-                </button>
-              </li>
-            ))}
+            {notes.map((note) => {
+              const noteFolder = folderName(note.folder_id);
+              return (
+                <li key={note.id}>
+                  <button
+                    type="button"
+                    className="note-list-item"
+                    onClick={() => onSelectNote(note.id)}
+                  >
+                    <span className="note-list-title">{note.title}</span>
+                    {noteFolder && (
+                      <span className="note-list-folder muted">{noteFolder}</span>
+                    )}
+                    <span className="note-list-preview muted">
+                      {preview(note.content)}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>
