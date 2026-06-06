@@ -42,3 +42,9 @@ export function updateNote(id, { title, content, tagIds, folder_id }) {
 export function deleteNote(id) {
   return api(`/api/v1/notes/${id}`, { method: "DELETE" });
 }
+
+export function summarizeNote(id) {
+  return api(`/api/v1/notes/${id}/summarize`, { method: "POST" }).then(
+    (r) => r.data.summary
+  );
+}

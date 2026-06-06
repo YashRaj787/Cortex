@@ -7,6 +7,7 @@ const authRoutes = require("./routes/authRoutes");
 const notesRoutes = require("./routes/notesRoutes");
 const foldersRoutes = require("./routes/foldersRoutes");
 const tagsRoutes = require("./routes/tagsRoutes");
+const { errorHandler } = require("./middleware/errorMiddleware");
 
 const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
   .split(",")
@@ -39,5 +40,8 @@ app.use("/api/v1/tags", tagsRoutes);
 app.get("/", (req, res) => {
   res.send("Cortex API running");
 });
+
+// Global error handler — must be registered LAST
+app.use(errorHandler);
 
 module.exports = app;

@@ -1,18 +1,19 @@
-# Cortex evolution roadmap
+# Cortex Evolution Roadmap
 
-Track progress through each stage. Complete steps in order.
+Track progress through each stage. Complete steps in order where practical.
 
 | Step | Focus | Status |
-|------|--------|--------|
-| **1** | GitHub + live deploy (Render/Vercel/Neon) | Ready — follow [STEP-01](./docs/STEP-01-LIVE.md) |
+|---|---|---|
+| **1** | GitHub + live deploy (Render/Vercel/PostgreSQL) | In progress - configuration exists; deployment not verified |
 | **2** | Search notes (SQL + UI) | Done |
-| **3** | AI summarize note (OpenAI) | Pending |
-| **4** | Clean architecture (services + errors) | Pending |
+| **3** | AI summarize note (OpenAI) | Done |
+| **4** | Clean architecture (services + errors) | Done |
 | **5** | Docker Compose | Pending |
 | **6** | GitHub Actions CI | Pending |
-| **7** | AWS EC2 + Nginx + PM2 + HTTPS | Pending |
+| **7** | Production hosting, reverse proxy, and HTTPS | Pending |
 | **8** | AI tag/folder suggestions | Pending |
 | **9** | Semantic search | Pending |
-| **10** | Rate limits, logging, monitoring | Pending |
+| **10** | Rate limits, logging, monitoring, and backups | Pending |
 
-**Current step:** 3 — AI summarize (Step 1 needs your GitHub/deploy; Step 2 is in code)
+**Current priority:** stabilize the repository, verify deployment, then continue
+with Docker Compose.

@@ -379,6 +379,28 @@
   line-height: 1.5;
 }
 
+.note-summary {
+  margin: 16px 0 0;
+  padding: 12px 16px;
+  border-radius: 6px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+}
+
+.note-summary strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--text-h);
+}
+
+.note-summary p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-h);
+  line-height: 1.5;
+}
+
 .back-link {
   display: inline-block;
   margin-bottom: 8px;

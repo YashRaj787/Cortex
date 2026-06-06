@@ -1,106 +1,38 @@
-const pool = require("../db");
+const foldersService = require("../services/foldersService");
 
-const listFolders = async (req, res) => {
+const listFolders = async (req, res, next) => {
   try {
-    const result = await pool.query(
-      `SELECT id, name, created_at
-       FROM folders
-       WHERE user_id = $1
-       ORDER BY created_at DESC`,
-      [req.user.id]
-    );
-
-    res.json({
-      message: "Folders retrieved",
-      data: result.rows,
-    });
+    const data = await foldersService.listFolders(req.user.id);
+    res.json({ message: "Folders retrieved", data });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to list folders" });
+    next(err);
   }
 };
 
-const createFolder = async (req, res) => {
-  const { name } = req.body;
-
-  if (!name || !String(name).trim()) {
-    return res.status(400).json({ message: "Folder name is required" });
-  }
-
+const createFolder = async (req, res, next) => {
   try {
-    const result = await pool.query(
-      `INSERT INTO folders (name, user_id)
-       VALUES ($1, $2)
-       RETURNING id, name, created_at`,
-      [String(name).trim(), req.user.id]
-    );
-
-    res.status(201).json({
-      message: "Folder created",
-      data: result.rows[0],
-    });
+    const data = await foldersService.createFolder(req.user.id, req.body.name);
+    res.status(201).json({ message: "Folder created", data });
   } catch (err) {
-    if (err.code === "23505") {
-      return res.status(400).json({ message: "Folder name already exists" });
-    }
-    console.error(err);
-    res.status(500).json({ message: "Failed to create folder" });
+    next(err);
   }
 };
 
-const updateFolder = async (req, res) => {
-  const { id } = req.params;
-  const { name } = req.body;
-
-  if (!name || !String(name).trim()) {
-    return res.status(400).json({ message: "Folder name is required" });
-  }
-
+const updateFolder = async (req, res, next) => {
   try {
-    const result = await pool.query(
-      `UPDATE folders
-       SET name = $1
-       WHERE id = $2 AND user_id = $3
-       RETURNING id, name, created_at`,
-      [String(name).trim(), id, req.user.id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Folder not found" });
-    }
-
-    res.json({
-      message: "Folder updated",
-      data: result.rows[0],
-    });
+    const data = await foldersService.updateFolder(req.params.id, req.user.id, req.body.name);
+    res.json({ message: "Folder updated", data });
   } catch (err) {
-    if (err.code === "23505") {
-      return res.status(400).json({ message: "Folder name already exists" });
-    }
-    console.error(err);
-    res.status(500).json({ message: "Failed to update folder" });
+    next(err);
   }
 };
 
-const deleteFolder = async (req, res) => {
-  const { id } = req.params;
-
+const deleteFolder = async (req, res, next) => {
   try {
-    const result = await pool.query(
-      `DELETE FROM folders
-       WHERE id = $1 AND user_id = $2
-       RETURNING id`,
-      [id, req.user.id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Folder not found" });
-    }
-
+    await foldersService.deleteFolder(req.params.id, req.user.id);
     res.json({ message: "Folder deleted" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to delete folder" });
+    next(err);
   }
 };
 

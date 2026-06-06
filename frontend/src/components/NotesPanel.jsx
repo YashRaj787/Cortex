@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { summarizeNote } from "../api/notes.js";
 
 function TagPicker({ tags, selectedTagIds, onToggle }) {
   if (tags.length === 0) return null;
@@ -69,6 +70,8 @@ export default function NotesPanel({
   const [editContent, setEditContent] = useState("");
   const [editFolderId, setEditFolderId] = useState(null);
   const [editTagIds, setEditTagIds] = useState([]);
+  const [summarizeLoading, setSummarizeLoading] = useState(false);
+  const [summary, setSummary] = useState("");
 
   function folderName(id) {
     if (id == null) return null;
@@ -85,10 +88,12 @@ export default function NotesPanel({
   useEffect(() => {
     if (!selectedNote) {
       setIsEditing(false);
+      setSummary("");
       return;
     }
 
     setIsEditing(false);
+    setSummary("");
     setEditTitle(selectedNote.title);
     setEditContent(selectedNote.content ?? "");
     setEditFolderId(selectedNote.folder_id ?? null);
@@ -149,6 +154,20 @@ export default function NotesPanel({
   function preview(text, max = 120) {
     if (!text) return "No content";
     return text.length <= max ? text : `${text.slice(0, max)}…`;
+  }
+
+  async function handleSummarize() {
+    if (!selectedNote) return;
+    setSummarizeLoading(true);
+    setSummary("");
+    try {
+      const result = await summarizeNote(selectedNote.id);
+      setSummary(result);
+    } catch (err) {
+      setSummary(`Error: ${err.message}`);
+    } finally {
+      setSummarizeLoading(false);
+    }
   }
 
   if (selectedNote) {
@@ -223,6 +242,13 @@ export default function NotesPanel({
                 ))}
               </ul>
             )}
+            {summary && (
+              <div className="note-summary">
+                <strong>AI Summary</strong>
+                <p>{summary}</p>
+              </div>
+            )}
+
             <div className="detail-actions">
               <button
                 type="button"
@@ -231,6 +257,14 @@ export default function NotesPanel({
                 onClick={() => setIsEditing(true)}
               >
                 Edit
+              </button>
+              <button
+                type="button"
+                className="btn btn-inline"
+                disabled={loading || summarizeLoading}
+                onClick={handleSummarize}
+              >
+                {summarizeLoading ? "Summarizing…" : "Summarize"}
               </button>
               <button
                 type="button"

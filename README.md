@@ -1,16 +1,31 @@
 # Cortex
 
-Knowledge management app (monorepo): notes, folders, and tags with JWT auth.
+Cortex is a knowledge-management application for creating, organizing,
+searching, and summarizing notes.
 
-## Structure
+## Current Status
 
-```
+The local MVP includes:
+
+- JWT signup, login, and authenticated routes
+- Notes CRUD with folders and tags
+- Note search and folder filtering
+- OpenAI-powered note summaries
+- Service-layer business logic and centralized API error handling
+
+The application is not yet verified as publicly deployed. Docker, CI/CD,
+production hardening, and advanced AI features remain on the roadmap.
+
+## Architecture
+
+```text
 Cortex/
-├── backend/          Express API + PostgreSQL
-├── frontend/         React + Vite
-├── package.json      Root scripts (dev, migrate, test)
-├── DEPLOY.md         Deployment guide
-└── GITHUB.md         Push to GitHub
+|-- backend/          Express 5 API + PostgreSQL
+|-- frontend/         React 19 + Vite + React Router
+|-- docs/             Implementation and deployment guides
+|-- package.json      Root development commands
+|-- DEPLOY.md         Deployment guide
+`-- ROADMAP.md        Project status and next steps
 ```
 
 ## Prerequisites
@@ -26,73 +41,69 @@ Cortex/
    npm run install:all
    ```
 
-2. Configure backend env:
+2. Copy `backend/.env.example` to `backend/.env` and configure the database,
+   `JWT_SECRET`, CORS origin, and optional OpenAI key.
 
-   ```bash
-   cp backend/.env.example backend/.env
-   ```
-
-   Edit `backend/.env` with database credentials and `JWT_SECRET` (32+ characters).
-
-3. Create database and migrate:
-
-   ```sql
-   CREATE DATABASE cortex;
-   ```
+3. Create the database and run the migration:
 
    ```bash
    npm run migrate
    ```
 
-4. Run API and frontend (two terminals from repo root):
+4. Run the API and frontend in separate terminals:
 
    ```bash
    npm run dev:api
    npm run dev:web
    ```
 
-- API: http://localhost:3000  
-- App: http://localhost:5173  
+- API: `http://localhost:3000`
+- Frontend: `http://localhost:5173`
 
-## Scripts (repo root)
+## Root Commands
 
 | Command | Description |
-|---------|-------------|
-| `npm run install:all` | Install backend + frontend deps |
-| `npm run dev:api` | API with nodemon |
-| `npm run dev:web` | Vite dev server |
-| `npm run migrate` | Apply SQL migration |
-| `npm run test` | Backend API smoke tests |
-| `npm run start:api` | Production API start |
+|---|---|
+| `npm run install:all` | Install backend and frontend dependencies |
+| `npm run dev:api` | Run the API with nodemon |
+| `npm run dev:web` | Run the Vite development server |
+| `npm run migrate` | Apply the database migration |
+| `npm run test` | Run backend API smoke tests |
+| `npm run start:api` | Start the production API process |
 
-## Frontend routes
+## Routes
+
+Frontend routes:
 
 | Path | Screen |
-|------|--------|
-| `/login` | Sign up / log in |
-| `/notes` | Notes list, create, edit, delete |
-| `/folders` | Folder CRUD |
-| `/tags` | Tag create / delete |
+|---|---|
+| `/login` | Sign up and log in |
+| `/notes` | Manage, search, and summarize notes |
+| `/folders` | Manage folders |
+| `/tags` | Manage tags |
 
-JWT is stored in `localStorage` (`cortex_token`). Protected API calls send `Authorization: Bearer <token>`.
+API base path: `/api/v1`.
 
-## API
+AI summary endpoint:
 
-Base path: `/api/v1` — auth, notes, folders, tags.
+```text
+POST /api/v1/notes/:id/summarize
+```
+
+JWT is stored in browser `localStorage` under `cortex_token`. Protected API
+calls send `Authorization: Bearer <token>`.
 
 ## Tests
 
-Requires a running Postgres DB and valid `backend/.env`:
+The backend smoke tests require a running PostgreSQL database and a valid
+`backend/.env`. They write test data to the configured database.
 
 ```bash
 npm run test
 ```
 
-## Roadmap
+## Documentation
 
-We are building toward a live, AI-powered knowledge app in ordered steps.
-
-**→ [ROADMAP.md](./ROADMAP.md)** — full checklist  
-**→ [docs/STEP-01-LIVE.md](./docs/STEP-01-LIVE.md)** — **current: deploy to the internet**
-
-Quick links: [GITHUB.md](./GITHUB.md) · [DEPLOY.md](./DEPLOY.md)
+- [ROADMAP.md](./ROADMAP.md) - project status and ordered next steps
+- [docs/STEP-01-LIVE.md](./docs/STEP-01-LIVE.md) - live deployment guide
+- [DEPLOY.md](./DEPLOY.md) - deployment reference

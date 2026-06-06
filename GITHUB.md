@@ -1,32 +1,36 @@
 # Push Cortex to GitHub
 
-Run these from the project root (`Cortex/`).
+Run these commands from the project root.
 
-## 1. Create a repo on GitHub
-
-- New repository → name e.g. `cortex` → **do not** add README (you already have one)
-
-## 2. Connect and push
+## Connect an Existing GitHub Repository
 
 ```bash
 git remote add origin https://github.com/YOUR_USERNAME/cortex.git
-git branch -M main
 git push -u origin main
 ```
 
-Replace `YOUR_USERNAME` with your GitHub username.
-
-## 3. Using GitHub CLI (optional)
-
-If `gh` is installed and logged in:
+If `origin` already exists:
 
 ```bash
-gh repo create cortex --private --source=. --remote=origin --push
+git remote set-url origin https://github.com/YOUR_USERNAME/cortex.git
+git push -u origin main
 ```
 
-Use `--public` instead of `--private` if you want a portfolio-visible repo.
+Replace `YOUR_USERNAME` with the actual GitHub owner. This repository does not
+assume a specific owner or remote URL.
 
-## After push
+## Verify
 
-- Add `backend/.env` only on the server — never commit it
-- Set repo secrets for CI/deploy when you add GitHub Actions later
+```bash
+git remote -v
+git status
+```
+
+The desired final status is:
+
+```text
+nothing to commit, working tree clean
+```
+
+Never commit `backend/.env`. Add secrets to the deployment platform or GitHub
+repository secrets when CI/CD is introduced.
