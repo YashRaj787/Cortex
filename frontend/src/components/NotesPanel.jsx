@@ -83,21 +83,22 @@ export default function NotesPanel({
       onSearchChange(searchInput);
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchInput]);
+  }, [onSearchChange, searchInput]);
 
   useEffect(() => {
-    if (!selectedNote) {
+    const timer = setTimeout(() => {
       setIsEditing(false);
       setSummary("");
-      return;
-    }
 
-    setIsEditing(false);
-    setSummary("");
-    setEditTitle(selectedNote.title);
-    setEditContent(selectedNote.content ?? "");
-    setEditFolderId(selectedNote.folder_id ?? null);
-    setEditTagIds(selectedNote.tags?.map((t) => t.id) ?? []);
+      if (selectedNote) {
+        setEditTitle(selectedNote.title);
+        setEditContent(selectedNote.content ?? "");
+        setEditFolderId(selectedNote.folder_id ?? null);
+        setEditTagIds(selectedNote.tags?.map((tag) => tag.id) ?? []);
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [selectedNote]);
 
   function toggleTag(tagId, setter) {

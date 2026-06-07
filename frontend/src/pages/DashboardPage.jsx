@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   NavLink,
   Navigate,
@@ -8,7 +8,7 @@ import {
 import * as foldersApi from "../api/folders.js";
 import * as notesApi from "../api/notes.js";
 import * as tagsApi from "../api/tags.js";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useAuth } from "../context/auth-context.js";
 
 export default function DashboardPage() {
   const { user, logout, isAuthenticated, booting } = useAuth();
@@ -25,36 +25,40 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function loadTags() {
+  const loadTags = useCallback(async () => {
     setTags(await tagsApi.listTags());
-  }
+  }, []);
 
-  async function loadFolders() {
+  const loadFolders = useCallback(async () => {
     setFolders(await foldersApi.listFolders());
-  }
+  }, []);
 
-  async function loadNotes(filter = notesFilter, search = noteSearch) {
+  const loadNotes = useCallback(async (filter, search) => {
     setNotes(await notesApi.listNotes(filter, search));
-  }
+  }, []);
 
-  async function loadDashboard() {
+  const loadDashboard = useCallback(async () => {
+    setLoading(true);
     await Promise.all([loadTags(), loadFolders(), loadNotes("all", "")]);
     setNotesFilter("all");
     setNoteSearch("");
-  }
+  }, [loadFolders, loadNotes, loadTags]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    setLoading(true);
-    loadDashboard()
-      .catch((err) => {
-        setError(err.message);
-        logout();
-        navigate("/login", { replace: true });
-      })
-      .finally(() => setLoading(false));
-  }, [isAuthenticated]);
+    const timer = setTimeout(() => {
+      loadDashboard()
+        .catch((err) => {
+          setError(err.message);
+          logout();
+          navigate("/login", { replace: true });
+        })
+        .finally(() => setLoading(false));
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [isAuthenticated, loadDashboard, logout, navigate]);
 
   if (booting) {
     return (

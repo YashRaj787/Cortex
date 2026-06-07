@@ -12,11 +12,12 @@
    | Variable | Example |
    |----------|---------|
    | `PORT` | `3000` |
-   | `DB_*` | your Postgres connection |
+   | `DATABASE_URL` | Neon pooled connection string |
    | `JWT_SECRET` | long random string (32+ chars) |
    | `CORS_ORIGIN` | `https://your-frontend.vercel.app` |
 
-2. Run migrations once:
+2. Run migrations once. The command also verifies that all required tables
+   exist:
 
    ```bash
    npm run migrate

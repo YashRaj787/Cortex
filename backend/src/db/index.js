@@ -1,19 +1,11 @@
 const { Pool } = require("pg");
+const getPoolConfig = require("./config");
 
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
-});
+const pool = new Pool(getPoolConfig());
 
-pool.connect()
-  .then(() => {
-    console.log("Database connected");
-  })
-  .catch((err) => {
-    console.error("Database connection failed", err);
-  });
+async function checkDatabaseConnection() {
+  await pool.query("SELECT 1");
+}
 
 module.exports = pool;
+module.exports.checkDatabaseConnection = checkDatabaseConnection;

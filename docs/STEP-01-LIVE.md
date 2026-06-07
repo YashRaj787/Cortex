@@ -41,17 +41,8 @@ git push -u origin main
 1. Sign up at [https://neon.tech](https://neon.tech)
 2. Create a project → database name e.g. `cortex`
 3. Copy the **connection string** (PostgreSQL)
-4. Map to backend env vars:
-
-| Variable | Value |
-|----------|--------|
-| `DB_HOST` | from Neon host |
-| `DB_PORT` | `5432` |
-| `DB_NAME` | database name |
-| `DB_USER` | user |
-| `DB_PASSWORD` | password |
-
-Or use a single `DATABASE_URL` if you add support later; Cortex currently uses separate `DB_*` vars in `backend/.env.example`.
+4. Set the copied pooled connection string as `DATABASE_URL`. Keep
+   `sslmode=require` in the URL.
 
 ---
 
@@ -74,11 +65,7 @@ Or use a single `DATABASE_URL` if you add support later; Cortex currently uses s
 |-----|--------|
 | `NODE_ENV` | `production` |
 | `PORT` | `10000` (Render sets `PORT` automatically — use their default if provided) |
-| `DB_HOST` | from Neon |
-| `DB_PORT` | `5432` |
-| `DB_NAME` | … |
-| `DB_USER` | … |
-| `DB_PASSWORD` | … |
+| `DATABASE_URL` | Neon pooled connection string |
 | `JWT_SECRET` | long random string (32+ chars) |
 | `CORS_ORIGIN` | `https://YOUR-APP.vercel.app` (set after Part D) |
 
