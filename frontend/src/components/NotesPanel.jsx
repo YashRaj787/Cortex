@@ -60,6 +60,7 @@ export default function NotesPanel({
   onClearSelection,
   onDeleteNote,
 }) {
+  console.log("[DIAG] NotesPanel render", { notesFilter });
   const [searchInput, setSearchInput] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");

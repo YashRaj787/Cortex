@@ -9,3 +9,4 @@ async function checkDatabaseConnection() {
 
 module.exports = pool;
 module.exports.checkDatabaseConnection = checkDatabaseConnection;
+

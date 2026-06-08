@@ -44,6 +44,20 @@ export default function DashboardPage() {
     setNoteSearch("");
   }, [loadFolders, loadNotes, loadTags]);
 
+  const handleNoteSearchChange = useCallback(async (search) => {
+    setNoteSearch(search);
+    setSelectedNote(null);
+    setError("");
+    setLoading(true);
+    try {
+      await loadNotes(notesFilter, search);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [loadNotes, notesFilter]);
+
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -101,20 +115,6 @@ export default function DashboardPage() {
         setSelectedNote(await notesApi.getNote(selectedNote.id));
       }
       await loadNotes(notesFilter, noteSearch);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleNoteSearchChange(search) {
-    setNoteSearch(search);
-    setSelectedNote(null);
-    setError("");
-    setLoading(true);
-    try {
-      await loadNotes(notesFilter, search);
     } catch (err) {
       setError(err.message);
     } finally {
