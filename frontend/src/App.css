@@ -92,12 +92,14 @@
 
 .row-form {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   padding: 16px;
 }
 
 .row-form input {
   flex: 1;
+  min-width: 0;
   font: inherit;
   padding: 10px 12px;
   border: 1px solid var(--border);
