@@ -14,12 +14,19 @@ const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-console.log("CORS_ORIGIN ENV RAW:", JSON.stringify(process.env.CORS_ORIGIN));
-console.log("allowedOrigins:", allowedOrigins);
-
 app.use(
   cors({
     origin(origin, callback) {
+      console.log("ORIGIN RAW:", JSON.stringify(origin));
+      console.log("ORIGIN LENGTH:", origin?.length);
+
+      allowedOrigins.forEach((o, i) => {
+        console.log(`ALLOWED[${i}] RAW:`, JSON.stringify(o));
+        console.log(`ALLOWED[${i}] LENGTH:`, o.length);
+        console.log(`ALLOWED[${i}] === ORIGIN:`, o === origin);
+      });
+
+      console.log("MATCH:", allowedOrigins.includes(origin));
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
