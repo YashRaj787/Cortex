@@ -56,6 +56,17 @@ async function login({ email, password }) {
         [normalizedEmail]
     );
 
+    console.log("LOGIN EMAIL:", normalizedEmail);
+    console.log("ROWS FOUND:", result.rows.length);
+
+    if (result.rows.length > 0) {
+        console.log("DB EMAIL:", result.rows[0].email);
+        console.log("HASH EXISTS:", !!result.rows[0].password);
+
+        const testMatch = await bcrypt.compare(password, result.rows[0].password);
+        console.log("PASSWORD MATCH:", testMatch);
+    }
+
     if (result.rows.length === 0) {
         throw new AuthenticationError("Invalid credentials");
     }
