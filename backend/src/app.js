@@ -14,6 +14,9 @@ const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+console.log("CORS_ORIGIN ENV RAW:", JSON.stringify(process.env.CORS_ORIGIN));
+console.log("allowedOrigins:", allowedOrigins);
+
 app.use(
   cors({
     origin(origin, callback) {
