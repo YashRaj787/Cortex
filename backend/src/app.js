@@ -17,6 +17,8 @@ const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
 app.use(
   cors({
     origin(origin, callback) {
+      console.log("ORIGIN:", origin);
+      console.log("ALLOWED:", allowedOrigins);
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
