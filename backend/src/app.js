@@ -17,25 +17,6 @@ const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
 app.use(
   cors({
     origin(origin, callback) {
-      console.log("ORIGIN RAW:", JSON.stringify(origin));
-      console.log("ORIGIN LENGTH:", origin?.length);
-
-      console.log(
-        "ORIGIN CODES:",
-        [...origin].map((c) => c.charCodeAt(0))
-      );
-
-      allowedOrigins.forEach((o, i) => {
-        console.log(`ALLOWED[${i}] RAW:`, JSON.stringify(o));
-        console.log(`ALLOWED[${i}] LENGTH:`, o.length);
-        console.log(`ALLOWED[${i}] === ORIGIN:`, o === origin);
-        console.log(
-          `ALLOWED[${i}] CODES:`,
-          [...o].map((c) => c.charCodeAt(0))
-        );
-      });
-
-      console.log("MATCH:", allowedOrigins.includes(origin));
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
