@@ -32,7 +32,11 @@ export default function LoginPage() {
       }
       setPassword("");
     } catch (err) {
-      setError(err.message);
+      // Error toast is already shown in api/client.js for API failures
+      // Only set inline error for client-side validation errors
+      if (err.message.startsWith("Validation")) {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
 
