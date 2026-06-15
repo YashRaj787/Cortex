@@ -9,14 +9,17 @@ const {
 } = require("../controllers/notesController");
 const { summarize } = require("../controllers/summarizeController");
 
+const { createNoteSchema, updateNoteSchema } = require("../validators/notesValidator");
+const { validate } = require("../middleware/validationMiddleware");
+
 const router = express.Router();
 
 router.use(authMiddleware);
 
 router.get("/", listNotes);
 router.get("/:id", getNote);
-router.post("/", createNote);
-router.put("/:id", updateNote);
+router.post("/", validate(createNoteSchema), createNote);
+router.put("/:id", validate(updateNoteSchema), updateNote);
 router.delete("/:id", deleteNote);
 
 // AI summarization

@@ -7,12 +7,15 @@ const {
   deleteFolder,
 } = require("../controllers/foldersController");
 
+const { createFolderSchema } = require("../validators/folderValidator");
+const { validate } = require("../middleware/validationMiddleware");
+
 const router = express.Router();
 
 router.use(authMiddleware);
 
 router.get("/", listFolders);
-router.post("/", createFolder);
+router.post("/", validate(createFolderSchema), createFolder);
 router.put("/:id", updateFolder);
 router.delete("/:id", deleteFolder);
 

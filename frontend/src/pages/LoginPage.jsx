@@ -18,6 +18,9 @@ export default function LoginPage() {
   }
 
   async function handleSubmit(e) {
+    // Prevent duplicate submissions caused by React StrictMode double‑mount
+    if (loading) return;
+    console.log("LOGIN_SUBMIT");
     e.preventDefault();
     setError("");
     setLoading(true);

@@ -32,7 +32,7 @@ export async function api(path, options = {}) {
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-
+  console.log("LOGIN_API_START", path);
   try {
     const res = await fetch(`${API_BASE}${path}`, {
       ...options,
