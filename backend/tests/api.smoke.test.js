@@ -53,7 +53,7 @@ test("tags and notes flow", async () => {
     .post("/api/v1/tags")
     .set("Authorization", `Bearer ${token}`)
     .send({ name: `tag-${Date.now()}` });
-
+  console.log('SMOKE TAG RESPONSE:', tagRes.status, JSON.stringify(tagRes.body));
   assert.equal(tagRes.status, 201);
   const tagId = tagRes.body.data.id;
 

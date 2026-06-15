@@ -1,7 +1,10 @@
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
 
 const app = express();
+// Apply Helmet middleware globally to set secure HTTP headers
+app.use(helmet());
 
 const authRoutes = require("./routes/authRoutes");
 const notesRoutes = require("./routes/notesRoutes");

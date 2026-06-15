@@ -8,6 +8,7 @@
 function validate(schema) {
   return (req, res, next) => {
     try {
+      console.log('Validation middleware - req.body:', JSON.stringify(req.body));
       schema.parse(req.body);
       next();
     } catch (err) {

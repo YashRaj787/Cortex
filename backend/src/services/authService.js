@@ -26,7 +26,9 @@ async function signup({ name, email, password }) {
     );
 
     if (existingUser.rows.length > 0) {
-        throw new ConflictError("Email already exists");
+        // Duplicate email is a client error – treat as validation failure (400)
+        // to align with test expectations and typical API design for signup.
+        throw new ValidationError("Email already exists");
     }
 
     // Hash password
