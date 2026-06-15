@@ -1,5 +1,6 @@
 const express = require("express");
 const authMiddleware = require("../middleware/authMiddleware");
+const { summarizeRateLimiter } = require("../middleware/rateLimiter");
 const {
   listNotes,
   getNote,
@@ -23,6 +24,6 @@ router.put("/:id", validate(updateNoteSchema), updateNote);
 router.delete("/:id", deleteNote);
 
 // AI summarization
-router.post("/:id/summarize", summarize);
+router.post("/:id/summarize", summarizeRateLimiter, summarize);
 
 module.exports = router;

@@ -10,6 +10,7 @@
     "start:api": "npm start --prefix backend"
   },
   "dependencies": {
+    "express-rate-limit": "^7.0.0",
     "react-toastify": "^11.1.0",
     "zod": "^4.4.3"
   }
