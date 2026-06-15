@@ -1,4 +1,3 @@
-import { toast } from "react-toastify";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
@@ -77,13 +76,6 @@ export default function DashboardPage() {
 
     return () => clearTimeout(timer);
   }, [isAuthenticated, loadDashboard, logout, navigate]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      toast.success("TOAST TEST");
-    }
-  }, [isAuthenticated]);
-
 
   if (booting) {
     return (
@@ -254,7 +246,7 @@ export default function DashboardPage() {
     setLoading(true);
     try {
       const updated = await notesApi.updateNote(payload.id, payload);
-      setSelectedNote(updated);r
+      setSelectedNote(updated);
       await loadNotes(notesFilter, noteSearch);
       toastSuccess("Note updated!");
       return true;
