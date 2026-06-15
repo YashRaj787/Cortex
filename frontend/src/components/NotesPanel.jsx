@@ -214,7 +214,7 @@ export default function NotesPanel({
             />
             <div className="detail-actions">
               <button type="submit" className="btn primary btn-inline" disabled={loading}>
-                Save changes
+                {loading ? "Saving…" : "Save changes"}
               </button>
               <button
                 type="button"
@@ -274,7 +274,7 @@ export default function NotesPanel({
                 disabled={loading}
                 onClick={() => onDeleteNote(selectedNote.id)}
               >
-                Delete
+                {loading ? "Deleting…" : "Delete"}
               </button>
             </div>
           </>
@@ -314,7 +314,7 @@ export default function NotesPanel({
           onToggle={(id) => toggleTag(id, setSelectedTagIds)}
         />
         <button type="submit" className="btn primary" disabled={loading}>
-          Save note
+          {loading ? "Creating…" : "Save note"}
         </button>
       </form>
 
@@ -352,12 +352,13 @@ export default function NotesPanel({
         </label>
         {loading && notes.length === 0 ? (
           <p className="muted">Loading notes…</p>
+        ) : notes.length === 0 && !searchInput.trim() ? (
+          <div className="empty-state">
+            <p className="muted">No notes yet.</p>
+            <p className="muted">Create your first note to get started.</p>
+          </div>
         ) : notes.length === 0 ? (
-          <p className="muted">
-            {searchInput.trim()
-              ? "No notes match your search."
-              : "No notes in this view. Create one above."}
-          </p>
+          <p className="muted">No notes match your search.</p>
         ) : (
           <ul className="note-list">
             {notes.map((note) => {

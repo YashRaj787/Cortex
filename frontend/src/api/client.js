@@ -1,3 +1,5 @@
+import { toastError } from "../utils/toast.js";
+
 const API_BASE =
   import.meta.env.VITE_API_URL?.replace(/\/$/, "") ||
   "http://localhost:3000";
@@ -31,18 +33,31 @@ export async function api(path, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers,
-  });
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers,
+    });
 
-  const data = await res.json().catch(() => ({}));
+    const data = await res.json().catch(() => ({}));
 
-  if (!res.ok) {
-    throw new Error(data.message || `Request failed (${res.status})`);
+    if (!res.ok) {
+      const errMsg = data.message || `Request failed (${res.status})`;
+      toastError(errMsg);
+      throw new Error(errMsg);
+    }
+
+    return data;
+  } catch (err) {
+    if (err.name === "TypeError" && err.message === "Failed to fetch") {
+      toastError("Network error. Please check your connection.");
+    } else if (!err.message.startsWith("Request failed")) {
+      // Only show for unexpected errors (network errors, etc.)
+      // API errors are already handled above
+      toastError(err.message || "Something went wrong");
+    }
+    throw err;
   }
-
-  return data;
 }
 
 export { API_BASE };

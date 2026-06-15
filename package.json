@@ -8,5 +8,8 @@
     "migrate": "npm run migrate --prefix backend",
     "test": "npm test --prefix backend",
     "start:api": "npm start --prefix backend"
+  },
+  "dependencies": {
+    "react-toastify": "^11.1.0"
   }
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/auth-context.js";
+import { toastSuccess } from "../utils/toast.js";
 
 export default function LoginPage() {
   const { isAuthenticated, login, signup } = useAuth();
@@ -8,6 +9,7 @@ export default function LoginPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -23,14 +25,17 @@ export default function LoginPage() {
     try {
       if (mode === "signup") {
         await signup(name, email, password);
+        toastSuccess("Account created successfully! Welcome to Cortex.");
       } else {
         await login(email, password);
+        toastSuccess("Logged in successfully!");
       }
       setPassword("");
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+
     }
   }
 
@@ -68,23 +73,33 @@ export default function LoginPage() {
           />
         </label>
 
-        <label>
+        <label className="password-label">
           Password
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete={mode === "login" ? "current-password" : "new-password"}
             minLength={6}
             required
           />
+          <button
+            type="button"
+            className="password-toggle"
+            onClick={() => setShowPassword((v) => !v)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? "🙈" : "👁️"}
+          </button>
         </label>
 
         {error && <p className="error">{error}</p>}
 
         <button type="submit" className="btn primary" disabled={loading}>
           {loading
-            ? "Working…"
+            ? mode === "login"
+              ? "Logging in…"
+              : "Creating account…"
             : mode === "login"
               ? "Log in"
               : "Create account & log in"}

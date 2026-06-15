@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import {
   NavLink,
   Navigate,
@@ -9,6 +11,7 @@ import * as foldersApi from "../api/folders.js";
 import * as notesApi from "../api/notes.js";
 import * as tagsApi from "../api/tags.js";
 import { useAuth } from "../context/auth-context.js";
+import { toastSuccess } from "../utils/toast.js";
 
 export default function DashboardPage() {
   const { user, logout, isAuthenticated, booting } = useAuth();
@@ -24,6 +27,7 @@ export default function DashboardPage() {
   const [newFolderName, setNewFolderName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const submitting = useRef(false);
 
   const loadTags = useCallback(async () => {
     setTags(await tagsApi.listTags());
@@ -74,6 +78,13 @@ export default function DashboardPage() {
     return () => clearTimeout(timer);
   }, [isAuthenticated, loadDashboard, logout, navigate]);
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      toast.success("TOAST TEST");
+    }
+  }, [isAuthenticated]);
+
+
   if (booting) {
     return (
       <main className="app">
@@ -88,37 +99,43 @@ export default function DashboardPage() {
 
   async function handleCreateTag(e) {
     e.preventDefault();
-    if (!newTagName.trim()) return;
+    if (!newTagName.trim() || submitting.current) return;
+    submitting.current = true;
     setError("");
     setLoading(true);
     try {
       await tagsApi.createTag(newTagName.trim());
       setNewTagName("");
       await loadTags();
+      toastSuccess(`Tag "${newTagName.trim()}" created!`);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+      submitting.current = false;
     }
   }
 
   async function handleDeleteTag(id) {
-    if (!window.confirm("Delete this tag? It will be removed from all notes.")) {
-      return;
-    }
+    if (!window.confirm("Delete this tag? It will be removed from all notes.")) return;
+    if (submitting.current) return;
+    submitting.current = true;
     setError("");
     setLoading(true);
     try {
+      const tagName = tags.find((t) => t.id === id)?.name || "Tag";
       await tagsApi.deleteTag(id);
       await loadTags();
       if (selectedNote) {
         setSelectedNote(await notesApi.getNote(selectedNote.id));
       }
       await loadNotes(notesFilter, noteSearch);
+      toastSuccess(`Tag "${tagName}" deleted!`);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+      submitting.current = false;
     }
   }
 
@@ -138,21 +155,26 @@ export default function DashboardPage() {
 
   async function handleCreateFolder(e) {
     e.preventDefault();
-    if (!newFolderName.trim()) return;
+    if (!newFolderName.trim() || submitting.current) return;
+    submitting.current = true;
     setError("");
     setLoading(true);
     try {
       await foldersApi.createFolder(newFolderName.trim());
       setNewFolderName("");
       await loadFolders();
+      toastSuccess(`Folder "${newFolderName.trim()}" created!`);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+      submitting.current = false;
     }
   }
 
   async function handleRenameFolder(id, name) {
+    if (submitting.current) return false;
+    submitting.current = true;
     setError("");
     setLoading(true);
     try {
@@ -167,39 +189,49 @@ export default function DashboardPage() {
       return false;
     } finally {
       setLoading(false);
+      submitting.current = false;
     }
   }
 
   async function handleDeleteFolder(id) {
     if (!window.confirm("Delete this folder? Notes in it become unfiled.")) return;
+    if (submitting.current) return;
+    submitting.current = true;
     setError("");
     setLoading(true);
     try {
+      const folderName = folders.find((f) => f.id === id)?.name || "Folder";
       await foldersApi.deleteFolder(id);
       await loadFolders();
       await loadNotes(notesFilter, noteSearch);
       if (selectedNote?.folder_id === id) {
         setSelectedNote(await notesApi.getNote(selectedNote.id));
       }
+      toastSuccess(`Folder "${folderName}" deleted!`);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+      submitting.current = false;
     }
   }
 
   async function handleCreateNote(payload) {
+    if (submitting.current) return false;
+    submitting.current = true;
     setError("");
     setLoading(true);
     try {
       await notesApi.createNote(payload);
       await loadNotes(notesFilter, noteSearch);
+      toastSuccess("Note created!");
       return true;
     } catch (err) {
       setError(err.message);
       return false;
     } finally {
       setLoading(false);
+      submitting.current = false;
     }
   }
 
@@ -216,33 +248,41 @@ export default function DashboardPage() {
   }
 
   async function handleUpdateNote(payload) {
+    if (submitting.current) return false;
+    submitting.current = true;
     setError("");
     setLoading(true);
     try {
       const updated = await notesApi.updateNote(payload.id, payload);
-      setSelectedNote(updated);
+      setSelectedNote(updated);r
       await loadNotes(notesFilter, noteSearch);
+      toastSuccess("Note updated!");
       return true;
     } catch (err) {
       setError(err.message);
       return false;
     } finally {
       setLoading(false);
+      submitting.current = false;
     }
   }
 
   async function handleDeleteNote(noteId) {
     if (!window.confirm("Delete this note?")) return;
+    if (submitting.current) return;
+    submitting.current = true;
     setError("");
     setLoading(true);
     try {
       await notesApi.deleteNote(noteId);
       setSelectedNote(null);
       await loadNotes(notesFilter, noteSearch);
+      toastSuccess("Note deleted!");
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+      submitting.current = false;
     }
   }
 

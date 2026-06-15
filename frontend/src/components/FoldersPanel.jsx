@@ -29,7 +29,7 @@ function FolderRow({ folder, loading, onRename, onDelete }) {
             required
           />
           <button type="submit" className="btn btn-inline" disabled={loading}>
-            Save
+            {loading ? "Saving…" : "Save"}
           </button>
           <button
             type="button"
@@ -65,7 +65,7 @@ function FolderRow({ folder, loading, onRename, onDelete }) {
           disabled={loading}
           onClick={() => onDelete(folder.id)}
         >
-          Delete
+          {loading ? "Deleting…" : "Delete"}
         </button>
       </div>
     </li>
@@ -92,7 +92,7 @@ export default function FoldersPanel({
           maxLength={255}
         />
         <button type="submit" className="btn primary btn-inline" disabled={loading}>
-          Add folder
+          {loading ? "Creating…" : "Add folder"}
         </button>
       </form>
 
@@ -100,10 +100,10 @@ export default function FoldersPanel({
         {loading && folders.length === 0 ? (
           <p className="muted">Loading folders…</p>
         ) : folders.length === 0 ? (
-          <p className="muted">
-            No folders yet. Notes can live without a folder, or assign one when
-            creating a note.
-          </p>
+          <div className="empty-state">
+            <p className="muted">No folders yet.</p>
+            <p className="muted">Create a folder to organize your notes.</p>
+          </div>
         ) : (
           <ul className="folder-list">
             {folders.map((folder) => (

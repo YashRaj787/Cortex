@@ -17,7 +17,7 @@ export default function TagsPanel({
           maxLength={100}
         />
         <button type="submit" className="btn primary btn-inline" disabled={loading}>
-          Add tag
+          {loading ? "Creating…" : "Add tag"}
         </button>
       </form>
 
@@ -25,7 +25,10 @@ export default function TagsPanel({
         {loading && tags.length === 0 ? (
           <p className="muted">Loading tags…</p>
         ) : tags.length === 0 ? (
-          <p className="muted">No tags yet. Create one above.</p>
+          <div className="empty-state">
+            <p className="muted">No tags yet.</p>
+            <p className="muted">Create tags to categorize your notes.</p>
+          </div>
         ) : (
           <ul className="folder-list">
             {tags.map((tag) => (
@@ -37,7 +40,7 @@ export default function TagsPanel({
                   disabled={loading}
                   onClick={() => onDeleteTag(tag.id)}
                 >
-                  Delete
+                  {loading ? "Deleting…" : "Delete"}
                 </button>
               </li>
             ))}

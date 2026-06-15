@@ -44,6 +44,33 @@
   font-size: 20px;
 }
 
+.password-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  color: var(--text-h);
+  position: relative;
+}
+
+.password-label .password-toggle {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--text-h);
+}
+
+.password-label input {
+  padding-right: 40px;
+}
+
 .card label {
   display: flex;
   flex-direction: column;
@@ -450,5 +477,148 @@
 @media (prefers-color-scheme: dark) {
   .error {
     color: #f87171;
+  }
+}
+
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+  .app {
+    padding: 24px 16px 32px;
+  }
+
+  .app-wide {
+    max-width: 100%;
+  }
+
+  .app-header.row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .app-header .btn {
+    width: 100%;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .card h2 {
+    font-size: 18px;
+  }
+
+  .notes-list-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-label {
+    flex: 1 1 auto;
+    max-width: 100%;
+  }
+
+  .folder-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .folder-actions {
+    justify-content: flex-end;
+  }
+
+  .folder-edit-form {
+    flex-direction: column;
+  }
+
+  .folder-edit-form input {
+    flex: 1 1 auto;
+  }
+
+  .detail-actions {
+    flex-direction: column;
+  }
+
+  .detail-actions .btn {
+    width: 100%;
+  }
+
+  .row-form {
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .row-form input {
+    flex: 1 1 auto;
+  }
+
+  .row-form .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 425px) {
+  .app {
+    padding: 20px 12px 24px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .card h2 {
+    font-size: 16px;
+  }
+
+  .btn {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .tab {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 375px) {
+  .app {
+    padding: 16px 10px 20px;
+  }
+
+  .card {
+    padding: 12px;
+  }
+
+  .card h2 {
+    font-size: 15px;
+  }
+
+  .muted {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 320px) {
+  .app {
+    padding: 14px 8px 16px;
+  }
+
+  .card {
+    padding: 10px;
+  }
+
+  .card h2 {
+    font-size: 14px;
+  }
+
+  .btn {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .tab {
+    padding: 6px 10px;
+    font-size: 13px;
   }
 }
