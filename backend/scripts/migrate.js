@@ -4,7 +4,9 @@ const path = require("path");
 const { Pool } = require("pg");
 const getPoolConfig = require("../src/db/config");
 
-const pool = new Pool(getPoolConfig());
+const poolConfig = getPoolConfig();
+console.log('Using DB config:', poolConfig);
+const pool = new Pool(poolConfig);
 
 const REQUIRED_TABLES = ["users", "folders", "notes", "tags", "note_tags"];
 
