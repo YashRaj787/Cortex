@@ -34,9 +34,9 @@ app.use(express.json());
 // Log all incoming requests
 app.use(requestLogger);
 
-app.get("/health", (req, res) => {
-  res.json({ ok: true, service: "cortex-api" });
-});
+ // Health check endpoint – no auth required
+ const { healthCheck } = require("./controllers/healthController");
+ app.get("/health", healthCheck);
 
 
 app.use("/api/v1/auth", authRoutes);
