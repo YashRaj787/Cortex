@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
+const requestLogger = require("./middleware/requestLogger");
 
 const app = express();
 // Apply Helmet middleware globally to set secure HTTP headers
@@ -30,10 +31,13 @@ app.use(
   })
 );
 app.use(express.json());
+// Log all incoming requests
+app.use(requestLogger);
 
 app.get("/health", (req, res) => {
   res.json({ ok: true, service: "cortex-api" });
 });
+
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/notes", notesRoutes);
