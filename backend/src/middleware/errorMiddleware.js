@@ -24,7 +24,8 @@ function errorHandler(err, _req, res, _next) {
     }
 
     // Log unexpected errors
-    console.error("Unhandled error:", err);
+    const logger = require("../utils/logger");
+    logger.error({msg: "Unhandled error:", err});
 
     const statusCode = err.statusCode && err.statusCode >= 400 ? err.statusCode : 500;
 

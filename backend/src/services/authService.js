@@ -59,7 +59,9 @@ async function login({ email, password }) {
     );
 
     if (result.rows.length === 0) {
-        throw new AuthenticationError("Invalid credentials");
+      const logger = require("../utils/logger");
+      logger.warn({msg: "Authentication failed: user not found", email});
+      throw new AuthenticationError("Invalid credentials");
     }
 
     const user = result.rows[0];
@@ -68,7 +70,9 @@ async function login({ email, password }) {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-        throw new AuthenticationError("Invalid credentials");
+      const logger = require("../utils/logger");
+      logger.warn({msg: "Authentication failed: password mismatch", email});
+      throw new AuthenticationError("Invalid credentials");
     }
 
     // Generate JWT

@@ -7,8 +7,10 @@ const { NotFoundError, ValidationError } = require("../utils/errors");
  * Generates an AI summary for the specified note.
  */
 const summarize = async (req, res, next) => {
-    try {
-        const { id } = req.params;
+  const logger = require("../utils/logger");
+  try {
+    const { id } = req.params;
+    logger.info({msg: "AI summarization request", noteId: id});
 
         // Fetch the note, ensuring it belongs to the authenticated user
         const result = await pool.query(
@@ -28,13 +30,15 @@ const summarize = async (req, res, next) => {
             throw new ValidationError("Note has no content to summarize");
         }
 
-        const summary = await summarizeNote(note.title, note.content);
+    const summary = await summarizeNote(note.title, note.content);
+    logger.info({msg: "AI summarization success", noteId: id});
 
         res.json({
             message: "Summary generated",
             data: { summary },
         });
     } catch (err) {
+    logger.error({msg: "AI summarization failed", err});
         next(err);
     }
 };
