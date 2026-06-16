@@ -1,4 +1,5 @@
 import { toastError } from "../utils/toast.js";
+import * as Sentry from "@sentry/react";
 
 const API_BASE =
   import.meta.env.VITE_API_URL?.replace(/\/$/, "") ||
@@ -49,6 +50,10 @@ export async function api(path, options = {}) {
 
     return data;
   } catch (err) {
+    // Capture unexpected errors in Sentry
+    if (Sentry && Sentry.captureException) {
+      Sentry.captureException(err);
+    }
     if (err.name === "TypeError" && err.message === "Failed to fetch") {
       toastError("Network error. Please check your connection.");
     } else if (!err.message.startsWith("Request failed")) {
