@@ -19,8 +19,9 @@
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.16.3",
     "zod": "^4.4.3",
-    "pino": "^8.19.0"
-    ,"@sentry/node": "^7.107.0"
+    "pino": "^8.19.0",
+    "@sentry/node": "^7.107.0",
+    "@sentry/tracing": "^7.120.4"
   },
   "devDependencies": {
     "nodemon": "^3.1.10",
