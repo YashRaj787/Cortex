@@ -1,0 +1,8 @@
+node_modules
+logs
+.git
+.env
+coverage
+*.test.js
+*.spec.js
+*.tmp
