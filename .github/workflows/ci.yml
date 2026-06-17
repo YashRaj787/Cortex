@@ -49,3 +49,14 @@ jobs:
         if: steps.lint.outputs.hasLint == 'true'
         run: npm run lint
         working-directory: frontend
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Render Deploy
+        uses: render/render-action@v1
+        with:
+          service-id: cortex-api
+          api-key: ${{ secrets.RENDER_TOKEN }}
