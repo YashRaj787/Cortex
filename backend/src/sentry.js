@@ -5,11 +5,11 @@
 
 const Sentry = require('@sentry/node');
 const { Integrations } = require('@sentry/tracing');
-const dotenv = require('dotenv');
+// Load environment variables via centralized env module
+require('./config/env');
 
-dotenv.config();
-
-const dsn = process.env.SENTRY_DSN_BACKEND;
+const config = require("./config");
+const dsn = config.sentryDsnBackend;
 
 if (dsn) {
   Sentry.init({

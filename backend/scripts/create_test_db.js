@@ -3,8 +3,8 @@
  * It reads connection parameters from the environment (via .env) and uses the
  * `pg` client to issue a CREATE DATABASE command.
  */
-// Load environment variables from the backend .env file
-require('dotenv').config({ path: __dirname + '/../.env' });
+// Load environment variables via centralized env module
+require('../src/config/env');
 const { Client } = require('pg');
 
 // Build a connection config using the regular development credentials.

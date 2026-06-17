@@ -1,4 +1,5 @@
-require("dotenv").config();
+// Load environment variables once via centralized env module
+require("./src/config/env");
 
 const app = require("./src/app");
 // Initialize Sentry for backend

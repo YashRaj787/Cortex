@@ -1,4 +1,5 @@
-require("dotenv").config({ path: require("path").join(__dirname, "..", ".env") });
+// Load environment variables via centralized env module
+require("../src/config/env");
 const fs = require("fs");
 const path = require("path");
 const { Pool } = require("pg");

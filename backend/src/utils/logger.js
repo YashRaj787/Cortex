@@ -9,8 +9,9 @@ const pino = require("pino");
 
 // Configure Pino. In production we use the default level; in development we can
 // override via LOG_LEVEL env var.
+const config = require("../config");
 const logger = pino({
-  level: process.env.LOG_LEVEL || "info",
+  level: config.logLevel || "info",
   timestamp: pino.stdTimeFunctions.isoTime,
 });
 

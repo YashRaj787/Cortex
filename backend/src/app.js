@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const requestLogger = require("./middleware/requestLogger");
+const config = require("./config");
 
 const app = express();
 // Apply Helmet middleware globally to set secure HTTP headers
@@ -13,7 +14,7 @@ const foldersRoutes = require("./routes/foldersRoutes");
 const tagsRoutes = require("./routes/tagsRoutes");
 const { errorHandler } = require("./middleware/errorMiddleware");
 
-const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
+const allowedOrigins = (config.corsOrigin || "http://localhost:5173")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);

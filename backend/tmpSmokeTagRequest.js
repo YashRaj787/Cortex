@@ -1,4 +1,5 @@
-require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+// Load environment variables via centralized env module
+require('./src/config/env');
 const request = require('supertest');
 const app = require('./src/app');
 

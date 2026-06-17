@@ -1,7 +1,8 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 function createClient() {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const config = require("../config");
+    const apiKey = config.openaiApiKey;
     if (!apiKey) {
         throw new Error("GEMINI_API_KEY is not configured");
     }

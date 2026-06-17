@@ -35,10 +35,11 @@ function errorHandler(err, _req, res, _next) {
     const statusCode = err.statusCode && err.statusCode >= 400 ? err.statusCode : 500;
 
     // In production, don't leak stack traces
-    const message =
-        process.env.NODE_ENV === "production" && statusCode === 500
-            ? "Internal server error"
-            : err.message || "Internal server error";
+  const config = require('../config');
+  const message =
+      config.nodeEnv === "production" && statusCode === 500
+          ? "Internal server error"
+          : err.message || "Internal server error";
 
     res.status(statusCode).json({ message });
 }

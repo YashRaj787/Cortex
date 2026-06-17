@@ -10,30 +10,31 @@
 // Ensure environment variables are loaded even when the test runner does not
 // explicitly invoke dotenv. This guarantees DATABASE_URL and DATABASE_URL_TEST are
 // available for both the application and the test suite.
-// Load environment variables from the project root .env file.
-require('dotenv').config({ path: require('path').join(__dirname, '..', '..', '.env') });
+// Load environment variables via centralized env module
+require('../config/env');
 
 function getPoolConfig() {
   // Dedicated test database – used when a test-specific URL is provided.
   // We prioritize DATABASE_URL_TEST regardless of NODE_ENV to ensure the test
   // suite always connects to the isolated test database.
-  if (process.env.DATABASE_URL_TEST) {
-    return { connectionString: process.env.DATABASE_URL_TEST };
+  const config = require("../config");
+  if (config.databaseUrlTest) {
+    return { connectionString: config.databaseUrlTest };
   }
 
   // Primary database URL for dev / prod.
-  if (process.env.DATABASE_URL) {
-    return { connectionString: process.env.DATABASE_URL };
+  if (config.databaseUrl) {
+    return { connectionString: config.databaseUrl };
   }
 
   // Fallback to individual connection parameters.
   return {
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD ? String(process.env.DB_PASSWORD) : "",
-    port: process.env.DB_PORT,
-    ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : undefined,
+    user: config.dbUser,
+    host: config.dbHost,
+    database: config.dbName,
+    password: config.dbPassword ? String(config.dbPassword) : "",
+    port: config.dbPort,
+    ssl: config.dbSsl === "true" ? { rejectUnauthorized: false } : undefined,
   };
 }
 

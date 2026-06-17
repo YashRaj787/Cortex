@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const pool = require("../db");
+const config = require("../config");
 const { ValidationError, ConflictError, AuthenticationError } = require("../utils/errors");
 
 async function signup({ name, email, password }) {
@@ -78,7 +79,7 @@ async function login({ email, password }) {
     // Generate JWT
     const token = jwt.sign(
         { id: user.id, email: user.email },
-        process.env.JWT_SECRET,
+        config.jwtSecret,
         { expiresIn: "7d" }
     );
 
