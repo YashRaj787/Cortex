@@ -1,0 +1,228 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Cortex API",
+    "version": "1.0.0",
+    "description": "API documentation for Cortex backend"
+  },
+  "servers": [
+    { "url": "http://localhost:3000" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "AuthSignup": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" }
+        },
+        "required": ["email", "password"]
+      },
+      "AuthLogin": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" }
+        },
+        "required": ["email", "password"]
+      },
+      "AuthMe": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "email": { "type": "string", "format": "email" }
+        }
+      },
+      "Note": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "content": { "type": "string" },
+          "folderId": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Folder": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Tag": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "PaginatedNotes": {
+        "type": "object",
+        "properties": {
+          "page": { "type": "integer" },
+          "limit": { "type": "integer" },
+          "total": { "type": "integer" },
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/Note" } }
+        }
+      },
+      "PaginatedFolders": {
+        "type": "object",
+        "properties": {
+          "page": { "type": "integer" },
+          "limit": { "type": "integer" },
+          "total": { "type": "integer" },
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/Folder" } }
+        }
+      },
+      "PaginatedTags": {
+        "type": "object",
+        "properties": {
+          "page": { "type": "integer" },
+          "limit": { "type": "integer" },
+          "total": { "type": "integer" },
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/Tag" } }
+        }
+      }
+    }
+  },
+  "security": [ { "bearerAuth": [] } ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/v1/auth/signup": {
+      "post": {
+        "summary": "Signup",
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthSignup" } } } },
+        "responses": { "201": { "description": "User created" } }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "summary": "Login",
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthLogin" } } } },
+        "responses": { "200": { "description": "JWT token", "content": { "application/json": { "schema": { "type": "object", "properties": { "token": { "type": "string" } } } } } } }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "summary": "Get current user",
+        "security": [ { "bearerAuth": [] } ],
+        "responses": { "200": { "description": "User info", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthMe" } } } } }
+      }
+    },
+    "/api/v1/notes": {
+      "get": {
+        "summary": "List notes",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "Paginated notes", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PaginatedNotes" } } } } }
+      },
+      "post": {
+        "summary": "Create note",
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Note" } } } },
+        "responses": { "201": { "description": "Note created" } }
+      }
+    },
+    "/api/v1/notes/{id}": {
+      "get": {
+        "summary": "Get note by id",
+        "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ],
+        "responses": { "200": { "description": "Note", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Note" } } } } }
+      },
+      "put": {
+        "summary": "Update note",
+        "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ],
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Note" } } } },
+        "responses": { "200": { "description": "Note updated" } }
+      },
+      "delete": {
+        "summary": "Delete note",
+        "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ],
+        "responses": { "204": { "description": "Deleted" } }
+      }
+    },
+    "/api/v1/notes/{id}/summarize": {
+      "post": {
+        "summary": "Summarize note",
+        "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ],
+        "responses": { "200": { "description": "Summary" } }
+      }
+    },
+    "/api/v1/folders": {
+      "get": {
+        "summary": "List folders",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "Paginated folders", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PaginatedFolders" } } } } }
+      },
+      "post": {
+        "summary": "Create folder",
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Folder" } } } },
+        "responses": { "201": { "description": "Folder created" } }
+      }
+    },
+    "/api/v1/folders/{id}": {
+      "put": {
+        "summary": "Update folder",
+        "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ],
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Folder" } } } },
+        "responses": { "200": { "description": "Folder updated" } }
+      },
+      "delete": {
+        "summary": "Delete folder",
+        "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ],
+        "responses": { "204": { "description": "Deleted" } }
+      }
+    },
+    "/api/v1/tags": {
+      "get": {
+        "summary": "List tags",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "Paginated tags", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PaginatedTags" } } } } }
+      },
+      "post": {
+        "summary": "Create tag",
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Tag" } } } },
+        "responses": { "201": { "description": "Tag created" } }
+      }
+    },
+    "/api/v1/tags/{id}": {
+      "put": {
+        "summary": "Update tag",
+        "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ],
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Tag" } } } },
+        "responses": { "200": { "description": "Tag updated" } }
+      },
+      "delete": {
+        "summary": "Delete tag",
+        "parameters": [ { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } } ],
+        "responses": { "204": { "description": "Deleted" } }
+      }
+    }
+  }
+}

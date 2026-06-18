@@ -5,9 +5,11 @@ import 'react-toastify/dist/ReactToastify.css'
 import './index.css'
 import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
+import { initPostHog } from './lib/analytics.js'
 // Initialize Sentry for frontend
 import './sentry.js'
-createRoot(document.getElementById('root')).render(
+  initPostHog()
+  createRoot(document.getElementById('root')).render(
   <>
     <StrictMode>
       <ErrorBoundary>

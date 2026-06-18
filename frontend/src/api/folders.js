@@ -11,6 +11,15 @@ export function createFolder(name) {
   });
 }
 
+// Track folder creation
+export async function createFolderWithTracking(name) {
+  const res = await createFolder(name);
+  if (res.ok) {
+    track("folder_created", { name });
+  }
+  return res;
+}
+
 export function updateFolder(id, name) {
   return api(`/api/v1/folders/${id}`, {
     method: "PUT",

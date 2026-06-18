@@ -52,4 +52,9 @@ app.get("/", (req, res) => {
 // Global error handler — must be registered LAST
 app.use(errorHandler);
 
+// Swagger UI setup
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("../docs/openapi.json");
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 module.exports = app;

@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-
 import {
   NavLink,
   Navigate,
   Outlet,
   useNavigate,
-} from "react-router-dom";
-import * as foldersApi from "../api/folders.js";
 import * as notesApi from "../api/notes.js";
+import * as foldersApi from "../api/folders.js";
 import * as tagsApi from "../api/tags.js";
+import * as tagsApi from "../api/tags.js";
+import { track } from "../lib/analytics.js";
 import { useAuth } from "../context/auth-context.js";
 import { toastSuccess } from "../utils/toast.js";
 
@@ -31,21 +31,18 @@ export default function DashboardPage() {
   const loadTags = useCallback(async () => {
     setTags(await tagsApi.listTags());
   }, []);
-
   const loadFolders = useCallback(async () => {
     setFolders(await foldersApi.listFolders());
   }, []);
-
   const loadNotes = useCallback(async (filter, search) => {
     setNotes(await notesApi.listNotes(filter, search));
   }, []);
-
   const loadDashboard = useCallback(async () => {
     setLoading(true);
     await Promise.all([loadTags(), loadFolders(), loadNotes("all", "")]);
     setNotesFilter("all");
     setNoteSearch("");
-  }, [loadFolders, loadNotes, loadTags]);
+  }, [loadTags, loadFolders, loadNotes]);
 
   const handleNoteSearchChange = useCallback(async (search) => {
     setNoteSearch(search);
@@ -63,7 +60,6 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!isAuthenticated) return;
-
     const timer = setTimeout(() => {
       loadDashboard()
         .catch((err) => {
@@ -73,7 +69,6 @@ export default function DashboardPage() {
         })
         .finally(() => setLoading(false));
     }, 0);
-
     return () => clearTimeout(timer);
   }, [isAuthenticated, loadDashboard, logout, navigate]);
 
@@ -84,10 +79,10 @@ export default function DashboardPage() {
       </main>
     );
   }
-
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
+  track("dashboard_viewed");
 
   async function handleCreateTag(e) {
     e.preventDefault();
@@ -96,7 +91,7 @@ export default function DashboardPage() {
     setError("");
     setLoading(true);
     try {
-      await tagsApi.createTag(newTagName.trim());
+      await tagsApi.createTagWithTracking(newTagName.trim());
       setNewTagName("");
       await loadTags();
       toastSuccess(`Tag "${newTagName.trim()}" created!`);
@@ -152,7 +147,7 @@ export default function DashboardPage() {
     setError("");
     setLoading(true);
     try {
-      await foldersApi.createFolder(newFolderName.trim());
+      await foldersApi.createFolderWithTracking(newFolderName.trim());
       setNewFolderName("");
       await loadFolders();
       toastSuccess(`Folder "${newFolderName.trim()}" created!`);
@@ -214,8 +209,8 @@ export default function DashboardPage() {
     setError("");
     setLoading(true);
     try {
-      await notesApi.createNote(payload);
-      await loadNotes(notesFilter, noteSearch);
+      const newNote = await notesApi.createNoteWithTracking(payload);
+      setNotes((prev) => [newNote, ...prev]);
       toastSuccess("Note created!");
       return true;
     } catch (err) {
@@ -245,9 +240,9 @@ export default function DashboardPage() {
     setError("");
     setLoading(true);
     try {
-      const updated = await notesApi.updateNote(payload.id, payload);
+      const updated = await notesApi.updateNoteWithTracking(payload.id, payload);
       setSelectedNote(updated);
-      await loadNotes(notesFilter, noteSearch);
+      setNotes((prev) => prev.map((n) => (n.id === updated.id ? updated : n)));
       toastSuccess("Note updated!");
       return true;
     } catch (err) {
@@ -266,9 +261,9 @@ export default function DashboardPage() {
     setError("");
     setLoading(true);
     try {
-      await notesApi.deleteNote(noteId);
+      await notesApi.deleteNoteWithTracking(noteId);
       setSelectedNote(null);
-      await loadNotes(notesFilter, noteSearch);
+      setNotes((prev) => prev.filter((n) => n.id !== noteId));
       toastSuccess("Note deleted!");
     } catch (err) {
       setError(err.message);
@@ -319,7 +314,6 @@ export default function DashboardPage() {
           Log out
         </button>
       </header>
-
       <nav className="tabs" aria-label="Main">
         <NavLink
           to="/notes"
@@ -341,9 +335,7 @@ export default function DashboardPage() {
           Tags
         </NavLink>
       </nav>
-
       {error && <p className="error">{error}</p>}
-
       <Outlet context={outletContext} />
     </main>
   );

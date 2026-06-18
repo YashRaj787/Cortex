@@ -1,4 +1,5 @@
 const pool = require("../db");
+const logger = require("../utils/logger");
 const { NotFoundError, ValidationError } = require("../utils/errors");
 
 /**
@@ -139,16 +140,25 @@ async function listNotes(userId, pagination = {}) {
 
     const search = q && String(q).trim();
     if (search) {
-        query += ` AND (title ILIKE $${paramIndex} OR content ILIKE $${paramIndex})`;
-        params.push(`%${search}%`);
+        // Use PostgreSQL full‑text search instead of ILIKE for better performance
+        // Build a tsvector from title and content and match it against the
+        // plainto_tsquery of the search term.
+        query += ` AND to_tsvector('english', title || ' ' || content) @@ plainto_tsquery('english', $${paramIndex})`;
+        params.push(search);
         paramIndex += 1;
     }
 
     query += ` ORDER BY updated_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex}`;
     params.push(limitNum, offset);
 
+    const start = Date.now();
     const result = await pool.query(query, params);
     const data = result.rows;
+    const duration = Date.now() - start;
+    logger.info({ query: "notes.list", durationMs: duration });
+    if (search) {
+        logger.info({ query: "notes.search", durationMs: duration });
+    }
 
     // Total count without pagination
     let countQuery = `SELECT COUNT(*) FROM notes WHERE user_id = $1`;
@@ -158,11 +168,14 @@ async function listNotes(userId, pagination = {}) {
         countParams.push(folder_id);
     }
     if (search) {
-        countQuery += ` AND (title ILIKE $${countParams.length + 1} OR content ILIKE $${countParams.length + 1})`;
-        countParams.push(`%${search}%`);
+        countQuery += ` AND to_tsvector('english', title || ' ' || content) @@ plainto_tsquery('english', $${countParams.length + 1})`;
+        countParams.push(search);
     }
+    const countStart = Date.now();
     const countResult = await pool.query(countQuery, countParams);
     const total = Number(countResult.rows[0].count);
+    const countDuration = Date.now() - countStart;
+    logger.info({ query: "notes.count", durationMs: countDuration });
 
     return { data, page: pageNum, limit: limitNum, total };
 }

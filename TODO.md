@@ -3,3 +3,4 @@
 - [ ] Show exact line change + diff
 - [ ] Run frontend/backend and verify: notes loads once; no continuous GET /api/v1/notes; search/filter work; notes CRUD work
 
+

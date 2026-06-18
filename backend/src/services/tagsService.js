@@ -1,8 +1,10 @@
 const pool = require("../db");
+const logger = require("../utils/logger");
 const { NotFoundError, ValidationError, ConflictError } = require("../utils/errors");
 
 async function listTags(userId, pagination = {}) {
     if (pagination === null) {
+        const start = Date.now();
         const result = await pool.query(
             `SELECT id, name, created_at
      FROM tags
@@ -10,6 +12,8 @@ async function listTags(userId, pagination = {}) {
      ORDER BY name ASC`,
             [userId]
         );
+        const duration = Date.now() - start;
+        logger.info({ query: "tags.list", durationMs: duration });
         return result.rows;
     }
     const { page = 1, limit = 20 } = pagination;
@@ -23,6 +27,7 @@ async function listTags(userId, pagination = {}) {
     }
     const offset = (pageNum - 1) * limitNum;
 
+    const start = Date.now();
     const result = await pool.query(
         `SELECT id, name, created_at
      FROM tags
@@ -32,12 +37,17 @@ async function listTags(userId, pagination = {}) {
         [userId, limitNum, offset]
     );
     const data = result.rows;
+    const duration = Date.now() - start;
+    logger.info({ query: "tags.list", durationMs: duration });
 
+    const countStart = Date.now();
     const countResult = await pool.query(
         `SELECT COUNT(*) FROM tags WHERE user_id = $1`,
         [userId]
     );
     const total = Number(countResult.rows[0].count);
+    const countDuration = Date.now() - countStart;
+    logger.info({ query: "tags.count", durationMs: countDuration });
     return { data, page: pageNum, limit: limitNum, total };
 }
 
