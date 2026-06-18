@@ -98,7 +98,32 @@ function normalizeTagIds(tagIds) {
 
 // ---- Public API ----
 
-async function listNotes(userId, { folder_id, q } = {}) {
+async function listNotes(userId, pagination = {}) {
+    // If pagination is null, return all notes without pagination
+    if (pagination === null) {
+        const result = await pool.query(
+            `SELECT id, title, content, folder_id, created_at, updated_at
+     FROM notes
+     WHERE user_id = $1
+     ORDER BY updated_at DESC`,
+            [userId]
+        );
+        return result.rows;
+    }
+    const { folder_id, q, page = 1, limit = 20 } = pagination;
+    // Validate pagination parameters
+    const pageNum = Number(page);
+    const limitNum = Number(limit);
+    if (Number.isNaN(pageNum) || pageNum < 1) {
+        throw new ValidationError("page must be >= 1");
+    }
+    if (Number.isNaN(limitNum) || limitNum < 1 || limitNum > 100) {
+        throw new ValidationError("limit must be between 1 and 100");
+    }
+
+    const offset = (pageNum - 1) * limitNum;
+
+    // Build main query with pagination
     let query = `
     SELECT id, title, content, folder_id, created_at, updated_at
     FROM notes
@@ -119,10 +144,27 @@ async function listNotes(userId, { folder_id, q } = {}) {
         paramIndex += 1;
     }
 
-    query += ` ORDER BY updated_at DESC`;
+    query += ` ORDER BY updated_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex}`;
+    params.push(limitNum, offset);
 
     const result = await pool.query(query, params);
-    return result.rows;
+    const data = result.rows;
+
+    // Total count without pagination
+    let countQuery = `SELECT COUNT(*) FROM notes WHERE user_id = $1`;
+    const countParams = [userId];
+    if (folder_id !== undefined && folder_id !== "") {
+        countQuery += ` AND folder_id = $2`;
+        countParams.push(folder_id);
+    }
+    if (search) {
+        countQuery += ` AND (title ILIKE $${countParams.length + 1} OR content ILIKE $${countParams.length + 1})`;
+        countParams.push(`%${search}%`);
+    }
+    const countResult = await pool.query(countQuery, countParams);
+    const total = Number(countResult.rows[0].count);
+
+    return { data, page: pageNum, limit: limitNum, total };
 }
 
 async function getNote(noteId, userId) {

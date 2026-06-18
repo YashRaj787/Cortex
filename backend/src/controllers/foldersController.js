@@ -2,7 +2,10 @@ const foldersService = require("../services/foldersService");
 
 const listFolders = async (req, res, next) => {
   try {
-    const data = await foldersService.listFolders(req.user.id);
+    const { page, limit } = req.query;
+    const data = page || limit
+      ? await foldersService.listFolders(req.user.id, req.query)
+      : await foldersService.listFolders(req.user.id, null);
     res.json({ message: "Folders retrieved", data });
   } catch (err) {
     next(err);

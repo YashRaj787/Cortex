@@ -7,8 +7,11 @@ const notesService = require("../services/notesService");
 
 const listNotes = async (req, res, next) => {
   try {
-    const data = await notesService.listNotes(req.user.id, req.query);
-    res.json({ message: "Notes retrieved", data });
+  const { page, limit } = req.query;
+  const data = page || limit
+    ? await notesService.listNotes(req.user.id, req.query)
+    : await notesService.listNotes(req.user.id, null);
+  res.json({ message: "Notes retrieved", data });
   } catch (err) {
     next(err);
   }

@@ -2,7 +2,10 @@ const tagsService = require("../services/tagsService");
 
 const listTags = async (req, res, next) => {
   try {
-    const data = await tagsService.listTags(req.user.id);
+    const { page, limit } = req.query;
+    const data = page || limit
+      ? await tagsService.listTags(req.user.id, req.query)
+      : await tagsService.listTags(req.user.id, null);
     res.json({ message: "Tags retrieved", data });
   } catch (err) {
     next(err);

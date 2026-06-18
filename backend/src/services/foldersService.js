@@ -1,15 +1,45 @@
 const pool = require("../db");
 const { NotFoundError, ValidationError, ConflictError } = require("../utils/errors");
 
-async function listFolders(userId) {
+async function listFolders(userId, pagination = {}) {
+    if (pagination === null) {
+        const result = await pool.query(
+            `SELECT id, name, created_at
+     FROM folders
+     WHERE user_id = $1
+     ORDER BY created_at DESC`,
+            [userId]
+        );
+        return result.rows;
+    }
+    const { page = 1, limit = 20 } = pagination;
+    // Validate pagination
+    const pageNum = Number(page);
+    const limitNum = Number(limit);
+    if (Number.isNaN(pageNum) || pageNum < 1) {
+        throw new ValidationError("page must be >= 1");
+    }
+    if (Number.isNaN(limitNum) || limitNum < 1 || limitNum > 100) {
+        throw new ValidationError("limit must be between 1 and 100");
+    }
+    const offset = (pageNum - 1) * limitNum;
+
     const result = await pool.query(
         `SELECT id, name, created_at
      FROM folders
      WHERE user_id = $1
-     ORDER BY created_at DESC`,
+     ORDER BY created_at DESC
+     LIMIT $2 OFFSET $3`,
+        [userId, limitNum, offset]
+    );
+    const data = result.rows;
+
+    const countResult = await pool.query(
+        `SELECT COUNT(*) FROM folders WHERE user_id = $1`,
         [userId]
     );
-    return result.rows;
+    const total = Number(countResult.rows[0].count);
+    return { data, page: pageNum, limit: limitNum, total };
 }
 
 async function createFolder(userId, name) {
