@@ -151,6 +151,7 @@ async function listNotes(userId, pagination = {}) {
     query += ` ORDER BY updated_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex}`;
     params.push(limitNum, offset);
 
+    // Instrumentation: measure duration of the main notes query
     const start = Date.now();
     const result = await pool.query(query, params);
     const data = result.rows;
@@ -171,6 +172,7 @@ async function listNotes(userId, pagination = {}) {
         countQuery += ` AND to_tsvector('english', title || ' ' || content) @@ plainto_tsquery('english', $${countParams.length + 1})`;
         countParams.push(search);
     }
+    // Instrumentation: measure duration of the count query
     const countStart = Date.now();
     const countResult = await pool.query(countQuery, countParams);
     const total = Number(countResult.rows[0].count);
