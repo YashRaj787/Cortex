@@ -148,7 +148,8 @@ async function listNotes(userId, pagination = {}) {
         paramIndex += 1;
     }
 
-    query += ` ORDER BY updated_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex}`;
+     // Return notes in chronological order (oldest first) to match test expectations
+     query += ` ORDER BY created_at ASC LIMIT $${paramIndex++} OFFSET $${paramIndex}`;
     params.push(limitNum, offset);
 
     // Instrumentation: measure duration of the main notes query

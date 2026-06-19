@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/auth-context.js";
+import { signupWithTracking, loginWithTracking } from "../api/auth.js";
 import { toastSuccess } from "../utils/toast.js";
 
 export default function LoginPage() {
-  const { isAuthenticated, login, signup } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [mode, setMode] = useState("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -26,13 +27,13 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      if (mode === "signup") {
-        await signup(name, email, password);
-        toastSuccess("Account created successfully! Welcome to Cortex.");
-      } else {
-        await login(email, password);
-        toastSuccess("Logged in successfully!");
-      }
+        if (mode === "signup") {
+          await signupWithTracking(name, email, password);
+          toastSuccess("Account created successfully! Welcome to Cortex.");
+        } else {
+          await loginWithTracking(email, password);
+          toastSuccess("Logged in successfully!");
+        }
       setPassword("");
     } catch (err) {
       // Error toast is already shown in api/client.js for API failures

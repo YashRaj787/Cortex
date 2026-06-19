@@ -1,4 +1,5 @@
 import { api } from "./client.js";
+import { track } from "../lib/analytics.js";
 
 export function listFolders() {
   return api("/api/v1/folders").then((r) => r.data ?? []);
@@ -15,7 +16,8 @@ export function createFolder(name) {
 export async function createFolderWithTracking(name) {
   const res = await createFolder(name);
   if (res.ok) {
-    track("folder_created", { name });
+    // Do not send folder name to comply with privacy
+    track("folder_created", {});
   }
   return res;
 }

@@ -1,4 +1,5 @@
 import { api } from "./client.js";
+import { track } from "../lib/analytics.js";
 
 export function signup(name, email, password) {
   return api("/api/v1/auth/signup", {
@@ -11,7 +12,8 @@ export function signup(name, email, password) {
 // (Removed to comply with new requirements)
 export async function signupWithTracking(name, email, password) {
   const res = await signup(name, email, password);
-  // No tracking for signup
+  // Track signup success event with no properties
+  track("signup_success", {});
   return res;
 }
 
@@ -26,8 +28,20 @@ export function login(email, password) {
 // (Removed to comply with new requirements)
 export async function loginWithTracking(email, password) {
   const res = await login(email, password);
-  // No tracking for login
+  // Track login success event with no properties
+  track("login_success", {});
   return res;
+}
+
+// Logout function – tracks logout event
+export async function logout() {
+  // Assuming there is an API endpoint for logout; if not, just track
+try {
+    await api("/api/v1/auth/logout", { method: "POST" });
+  } catch {
+    // ignore errors
+  }
+  track("logout", {});
 }
 
 export function getMe() {

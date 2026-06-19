@@ -1,12 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import {
   NavLink,
   Navigate,
   Outlet,
   useNavigate,
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
 import * as notesApi from "../api/notes.js";
 import * as foldersApi from "../api/folders.js";
-import * as tagsApi from "../api/tags.js";
 import * as tagsApi from "../api/tags.js";
 import { track } from "../lib/analytics.js";
 import { useAuth } from "../context/auth-context.js";
@@ -34,7 +37,7 @@ export default function DashboardPage() {
   const loadFolders = useCallback(async () => {
     setFolders(await foldersApi.listFolders());
   }, []);
-  const loadNotes = useCallback(async (filter, search) => {
+  const loadNotes = useCallback(async (filter, search = "") => {
     setNotes(await notesApi.listNotes(filter, search));
   }, []);
   const loadDashboard = useCallback(async () => {
@@ -44,19 +47,27 @@ export default function DashboardPage() {
     setNoteSearch("");
   }, [loadTags, loadFolders, loadNotes]);
 
-  const handleNoteSearchChange = useCallback(async (search) => {
+  // Handle search input changes – updates the search state and reloads notes
+  const handleNoteSearchChange = (search) => {
     setNoteSearch(search);
+    // Reset selected note when search changes
     setSelectedNote(null);
+    // Reload notes with current filter and new search query
+    loadNotes(notesFilter, search);
+  };
+
+  // Handle selecting a note – fetches the note details
+  const handleSelectNote = async (noteId) => {
     setError("");
     setLoading(true);
     try {
-      await loadNotes(notesFilter, search);
+      setSelectedNote(await notesApi.getNote(noteId));
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [loadNotes, notesFilter]);
+  };
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -132,6 +143,7 @@ export default function DashboardPage() {
     setError("");
     setLoading(true);
     try {
+      await loadNotes("all");
       await loadNotes(filter, noteSearch);
     } catch (err) {
       setError(err.message);
@@ -222,17 +234,7 @@ export default function DashboardPage() {
     }
   }
 
-  async function handleSelectNote(noteId) {
-    setError("");
-    setLoading(true);
-    try {
-      setSelectedNote(await notesApi.getNote(noteId));
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
+  // handleSelectNote is no longer used
 
   async function handleUpdateNote(payload) {
     if (submitting.current) return false;

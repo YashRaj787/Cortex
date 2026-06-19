@@ -34,9 +34,12 @@ export function track(eventName, properties = {}) {
   if (!window.__posthog__) return;
   // Sanitize properties – remove any sensitive data
   const sanitized = { ...properties };
-  // Remove any keys that contain 'password', 'jwt', 'email'
+  // Remove any keys that contain sensitive data
   Object.keys(sanitized).forEach((k) => {
-    if (/password|jwt|email/i.test(k)) delete sanitized[k];
+    // Disallow email, password, jwt
+    if (/password|jwt|email/i.test(k)) {
+      delete sanitized[k];
+    }
   });
   window.__posthog__.capture(eventName, sanitized);
 }

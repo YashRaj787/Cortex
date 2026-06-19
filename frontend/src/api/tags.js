@@ -12,14 +12,15 @@ export function createTag(name) {
   });
 }
 
-// Track tag creation
-export async function createTagWithTracking(name) {
-  const res = await createTag(name);
-  if (res.ok) {
-    track("tag_created", { name });
+  // Track tag creation
+  export async function createTagWithTracking(name) {
+    const res = await createTag(name);
+    if (res.ok) {
+      // Do not send tag name to comply with privacy
+      track("tag_created", {});
+    }
+    return res;
   }
-  return res;
-}
 
 export function deleteTag(id) {
   return api(`/api/v1/tags/${id}`, { method: "DELETE" });

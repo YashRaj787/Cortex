@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { summarizeNote } from "../api/notes.js";
+import { summarizeNoteWithTracking } from "../api/notes.js";
 
 function TagPicker({ tags, selectedTagIds, onToggle }) {
   if (tags.length === 0) return null;
@@ -163,7 +163,7 @@ export default function NotesPanel({
     setSummarizeLoading(true);
     setSummary("");
     try {
-      const result = await summarizeNote(selectedNote.id);
+        const result = await summarizeNoteWithTracking(selectedNote.id);
       setSummary(result);
     } catch (err) {
       setSummary(`Error: ${err.message}`);
