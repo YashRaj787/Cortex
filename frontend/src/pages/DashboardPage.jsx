@@ -12,11 +12,13 @@ import * as notesApi from "../api/notes.js";
 import * as foldersApi from "../api/folders.js";
 import * as tagsApi from "../api/tags.js";
 import { track } from "../lib/analytics.js";
+import FeedbackModal from "../components/FeedbackModal.jsx";
 import { useAuth } from "../context/auth-context.js";
 import { toastSuccess } from "../utils/toast.js";
 
 export default function DashboardPage() {
   const { user, logout, isAuthenticated, booting } = useAuth();
+  const [showFeedback, setShowFeedback] = useState(false);
   const navigate = useNavigate();
 
   const [tags, setTags] = useState([]);
@@ -339,6 +341,10 @@ export default function DashboardPage() {
       </nav>
       {error && <p className="error">{error}</p>}
       <Outlet context={outletContext} />
+      <FeedbackModal
+        isOpen={showFeedback}
+        onClose={() => setShowFeedback(false)}
+      />
     </main>
   );
 }
