@@ -1,9 +1,11 @@
 // Reusable rate limiting middleware using express-rate-limit.
 // Provides two configurations:
-// 1. authRateLimiter: 10 requests per 15 minutes per IP for auth routes.
+// 1. authRateLimiter: 10 requests per 15 minutes per IP for auth routes (production).
 // 2. summarizeRateLimiter: 20 requests per hour per IP for note summarization.
 
 const rateLimit = require('express-rate-limit');
+
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 /**
  * Helper to create a rate limiter with a JSON 429 response.
@@ -29,11 +31,23 @@ function createJsonRateLimiter({ windowMs, max }) {
   });
 }
 
+/**
+ * Creates a no-op middleware that passes all requests through.
+ * Used in development mode to disable rate limiting.
+ * @returns {import('express').RequestHandler}
+ */
+function createNoOpLimiter() {
+  return (req, res, next) => next();
+}
+
 // 10 requests per 15 minutes per IP for authentication routes.
-const authRateLimiter = createJsonRateLimiter({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,
-});
+// Disabled in development (NODE_ENV=development).
+const authRateLimiter = isDevelopment
+  ? createNoOpLimiter()
+  : createJsonRateLimiter({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 10,
+    });
 
 // 20 requests per hour per IP for note summarization.
 const summarizeRateLimiter = createJsonRateLimiter({
