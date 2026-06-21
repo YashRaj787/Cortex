@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/auth-context.js";
 import { signupWithTracking, loginWithTracking } from "../api/auth.js";
 import { toastSuccess } from "../utils/toast.js";
 
 export default function LoginPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, login, signup } = useAuth();
+  const navigate = useNavigate();
   const [mode, setMode] = useState("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,13 +29,15 @@ export default function LoginPage() {
 
     try {
         if (mode === "signup") {
-          await signupWithTracking(name, email, password);
+          await signup(name, email, password);
           toastSuccess("Account created successfully! Welcome to Cortex.");
         } else {
-          await loginWithTracking(email, password);
+          await login(email, password);
           toastSuccess("Logged in successfully!");
         }
       setPassword("");
+      // Redirect to notes page after successful auth
+      navigate("/notes", { replace: true });
     } catch (err) {
       // Error toast is already shown in api/client.js for API failures
       // Only set inline error for client-side validation errors

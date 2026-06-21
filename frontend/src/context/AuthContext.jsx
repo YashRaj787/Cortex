@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import * as authApi from "../api/auth.js";
+import { signupWithTracking, loginWithTracking } from "../api/auth.js";
 import { getToken, setToken } from "../api/client.js";
 import { AuthContext } from "./auth-context.js";
 
@@ -22,7 +23,7 @@ export function AuthProvider({ children }) {
   }, [initialToken]);
 
   const login = useCallback(async (email, password) => {
-    const result = await authApi.login(email, password);
+    const result = await loginWithTracking(email, password);
     setToken(result.token);
     const profile = await authApi.getMe();
     setUser(profile);
@@ -30,7 +31,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const signup = useCallback(async (name, email, password) => {
-    await authApi.signup(name, email, password);
+    await signupWithTracking(name, email, password);
     return login(email, password);
   }, [login]);
 
