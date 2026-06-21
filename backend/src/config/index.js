@@ -9,7 +9,8 @@ module.exports = {
   jwtSecret: env.JWT_SECRET,
   databaseUrl: env.DATABASE_URL,
   databaseUrlTest: env.DATABASE_URL_TEST,
-  openaiApiKey: env.GEMINI_API_KEY,
+  // NVIDIA NIM API key (replaces previous Gemini key)
+  nimApiKey: env.NIM_API_KEY,
   port: env.PORT,
   nodeEnv: env.NODE_ENV,
   corsOrigin: env.CORS_ORIGIN,

@@ -1,14 +1,19 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+// Removed Gemini SDK import
+const { OpenAI } = require("openai");
 // AbortController is available globally in Node.js 15+. No need to import.
 const logger = require("../utils/logger");
 
 function createClient() {
     const config = require("../config");
-    const apiKey = config.openaiApiKey;
+    const apiKey = config.nimApiKey;
     if (!apiKey) {
-        throw new Error("GEMINI_API_KEY is not configured");
+        throw new Error("NIM_API_KEY is not configured");
     }
-    return new GoogleGenerativeAI(apiKey);
+    // OpenAI client configured for NVIDIA NIM endpoint
+    return new OpenAI({
+        apiKey,
+        baseURL: "https://integrate.api.nvidia.com/v1",
+    });
 }
 
 /**
@@ -26,7 +31,8 @@ async function summarizeNote(title, content) {
 
     const prompt = `Summarize the following note in 2-3 concise sentences. Focus on the key points.\n\nTitle: ${title}\n\nContent:\n${textToSummarize}`;
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+    // Use NVIDIA NIM model
+    const model = genAI; // OpenAI client itself will be used for chat completions
 
     // Retry policy: maximum 2 retries for transient failures
     const maxRetries = 2;
@@ -39,11 +45,14 @@ async function summarizeNote(title, content) {
             const timeout = setTimeout(() => {
                 controller.abort();
             }, 15000);
-            const result = await model.generateContent(prompt, {
+            const chatResponse = await model.chat.completions.create({
+                model: "openai/gpt-oss-20b",
+                messages: [{ role: "user", content: prompt }],
+                temperature: 0.7,
                 signal: controller.signal,
             });
             clearTimeout(timeout);
-            const summary = result.response.text().trim();
+            const summary = chatResponse.choices[0].message.content.trim();
             if (!summary) {
                 throw new Error("Gemini returned an empty summary");
             }

@@ -1,5 +1,4 @@
-// DIAGNOSTIC: Request counting
-let getNotesCount = 0;
+// (Diagnostic request counting removed)
 
 const express = require("express");
 const authMiddleware = require("../middleware/authMiddleware");
@@ -20,13 +19,9 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
-// DIAGNOSTIC: Wrapper to count GET / requests
-const listNotesCounted = (req, res, next) => {
-  console.log(`[DIAG] GET /api/v1/notes #${++getNotesCount} at ${new Date().toISOString()}`);
-  return listNotes(req, res, next);
-};
+// (Diagnostic wrapper removed)
 
-router.get("/", listNotesCounted);
+router.get("/", listNotes);
 router.get("/:id", getNote);
 router.post("/", validate(createNoteSchema), createNote);
 router.put("/:id", validate(updateNoteSchema), updateNote);

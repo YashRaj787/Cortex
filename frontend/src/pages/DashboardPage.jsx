@@ -14,13 +14,15 @@ import FeedbackModal from "../components/FeedbackModal.jsx";
 import { useAuth } from "../context/auth-context.js";
 import { toastSuccess } from "../utils/toast.js";
 
-// DIAGNOSTIC: Mount/unmount tracking
-let mountCount = 0;
-let unmountCount = 0;
+// Removed mount/unmount diagnostic tracking variables
+// (no longer needed for production)
 
 export default function DashboardPage() {
-  console.log(`[DIAG] DashboardPage MOUNT #${++mountCount}, UNMOUNT #${unmountCount}`);
+  // Removed diagnostic render log
+  
   const { user, logout, isAuthenticated, booting } = useAuth();
+  
+  // Removed diagnostic mount/unmount log
   const [showFeedback, setShowFeedback] = useState(false);
   const navigate = useNavigate();
 
@@ -52,14 +54,19 @@ export default function DashboardPage() {
     setNoteSearch("");
   }, [loadTags, loadFolders, loadNotes]);
 
+  // Callback refs tracking removed
+
+  // Render count logging removed
+
+  // Log current state snapshot
+  // State snapshot logging removed
+
   // Handle search input changes – updates the search state and reloads notes
-  const handleNoteSearchChange = (search) => {
+  const handleNoteSearchChange = useCallback((search) => {
     setNoteSearch(search);
-    // Reset selected note when search changes
     setSelectedNote(null);
-    // Reload notes with current filter and new search query
     loadNotes(notesFilter, search);
-  };
+  }, [notesFilter, loadNotes]);
 
   // Handle selecting a note – fetches the note details
   const handleSelectNote = async (noteId) => {
@@ -75,10 +82,8 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    console.log("[DIAG] DashboardPage useEffect running, isAuthenticated:", isAuthenticated);
     if (!isAuthenticated) return;
     const timer = setTimeout(() => {
-      console.log("[DIAG] loadDashboard CALLED");
       loadDashboard()
         .catch((err) => {
           setError(err.message);
@@ -88,10 +93,11 @@ export default function DashboardPage() {
         .finally(() => setLoading(false));
     }, 0);
     return () => {
-      console.log("[DIAG] DashboardPage UNMOUNT #" + (++unmountCount));
       clearTimeout(timer);
     };
   }, [isAuthenticated, loadDashboard, logout, navigate]);
+
+  // NoteSearch and notes change tracking logs removed
 
   async function handleCreateTag(e) {
     e.preventDefault();

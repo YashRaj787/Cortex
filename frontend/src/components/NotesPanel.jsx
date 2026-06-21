@@ -60,8 +60,8 @@ export default function NotesPanel({
   onClearSelection,
   onDeleteNote,
 }) {
-  console.log("[DIAG] NotesPanel render", { notesFilter });
   const [searchInput, setSearchInput] = useState("");
+  // Log after searchInput is defined to avoid ReferenceError
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [folderId, setFolderId] = useState(null);

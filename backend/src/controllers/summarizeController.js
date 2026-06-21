@@ -9,9 +9,13 @@ const { NotFoundError, ValidationError } = require("../utils/errors");
 const summarize = async (req, res, next) => {
   const logger = require("../utils/logger");
   const startTime = Date.now();
+  // Declare variables in outer scope so they are accessible in the catch block
+  let id;
+  let userId;
+  let note;
   try {
-    const { id } = req.params;
-    const userId = req.user.id;
+    ({ id } = req.params);
+    userId = req.user.id;
     logger.info({msg: "AI summarization request", noteId: id, userId});
 
         // Fetch the note, ensuring it belongs to the authenticated user
@@ -26,7 +30,7 @@ const summarize = async (req, res, next) => {
             throw new NotFoundError("Note not found");
         }
 
-        const note = result.rows[0];
+        note = result.rows[0];
         // Content size validation
         const totalLength = (note.title?.length ?? 0) + (note.content?.length ?? 0);
         if (totalLength > 20000) {
