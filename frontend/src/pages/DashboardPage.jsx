@@ -3,6 +3,7 @@ import {
   useCallback,
   useEffect,
   useRef,
+  useMemo,
 } from "react";
 import { NavLink, Navigate, Outlet, useNavigate } from "react-router-dom";
 import * as notesApi from "../api/notes.js";
@@ -13,7 +14,12 @@ import FeedbackModal from "../components/FeedbackModal.jsx";
 import { useAuth } from "../context/auth-context.js";
 import { toastSuccess } from "../utils/toast.js";
 
+// DIAGNOSTIC: Mount/unmount tracking
+let mountCount = 0;
+let unmountCount = 0;
+
 export default function DashboardPage() {
+  console.log(`[DIAG] DashboardPage MOUNT #${++mountCount}, UNMOUNT #${unmountCount}`);
   const { user, logout, isAuthenticated, booting } = useAuth();
   const [showFeedback, setShowFeedback] = useState(false);
   const navigate = useNavigate();
@@ -69,8 +75,10 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
+    console.log("[DIAG] DashboardPage useEffect running, isAuthenticated:", isAuthenticated);
     if (!isAuthenticated) return;
     const timer = setTimeout(() => {
+      console.log("[DIAG] loadDashboard CALLED");
       loadDashboard()
         .catch((err) => {
           setError(err.message);
@@ -79,20 +87,11 @@ export default function DashboardPage() {
         })
         .finally(() => setLoading(false));
     }, 0);
-    return () => clearTimeout(timer);
+    return () => {
+      console.log("[DIAG] DashboardPage UNMOUNT #" + (++unmountCount));
+      clearTimeout(timer);
+    };
   }, [isAuthenticated, loadDashboard, logout, navigate]);
-
-  if (booting) {
-    return (
-      <main className="app">
-        <p className="muted">Loading…</p>
-      </main>
-    );
-  }
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  track("dashboard_viewed");
 
   async function handleCreateTag(e) {
     e.preventDefault();
@@ -279,30 +278,66 @@ export default function DashboardPage() {
     navigate("/login", { replace: true });
   }
 
-  const outletContext = {
-    tags,
-    folders,
-    notes,
-    notesFilter,
-    selectedNote,
-    loading,
-    newTagName,
-    newFolderName,
-    setNewTagName,
-    setNewFolderName,
-    handleCreateTag,
-    handleDeleteTag,
-    handleNotesFilterChange,
-    handleNoteSearchChange,
-    handleCreateFolder,
-    handleRenameFolder,
-    handleDeleteFolder,
-    handleCreateNote,
-    handleUpdateNote,
-    handleSelectNote,
-    setSelectedNote,
-    handleDeleteNote,
-  };
+  const outletContext = useMemo(
+    () => ({
+      tags,
+      folders,
+      notes,
+      notesFilter,
+      selectedNote,
+      loading,
+      newTagName,
+      newFolderName,
+      setNewTagName,
+      setNewFolderName,
+      handleCreateTag,
+      handleDeleteTag,
+      handleNotesFilterChange,
+      handleNoteSearchChange,
+      handleCreateFolder,
+      handleRenameFolder,
+      handleDeleteFolder,
+      handleCreateNote,
+      handleUpdateNote,
+      handleSelectNote,
+      setSelectedNote,
+      handleDeleteNote,
+    }),
+    [
+      tags,
+      folders,
+      notes,
+      notesFilter,
+      selectedNote,
+      loading,
+      newTagName,
+      newFolderName,
+      handleCreateTag,
+      handleDeleteTag,
+      handleNotesFilterChange,
+      handleNoteSearchChange,
+      handleCreateFolder,
+      handleRenameFolder,
+      handleDeleteFolder,
+      handleCreateNote,
+      handleUpdateNote,
+      handleSelectNote,
+      setSelectedNote,
+      handleDeleteNote,
+    ]
+  );
+
+  if (booting) {
+    return (
+      <main className="app">
+        <p className="muted">Loading…</p>
+      </main>
+    );
+  }
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  track("dashboard_viewed");
 
   return (
     <main className="app app-wide">

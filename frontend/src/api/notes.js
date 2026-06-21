@@ -1,7 +1,11 @@
+// DIAGNOSTIC: API call tracking
+let listNotesCallCount = 0;
+
 import { api } from "./client.js";
 import { track } from "../lib/analytics.js";
 
 export function listNotes(folderFilter = "all", searchQuery = "") {
+  console.log(`[DIAG] listNotes CALLED #${++listNotesCallCount}, filter: "${folderFilter}", search: "${searchQuery}"`);
   const params = new URLSearchParams();
   if (folderFilter !== "all" && folderFilter !== "none") {
     params.set("folder_id", folderFilter);
