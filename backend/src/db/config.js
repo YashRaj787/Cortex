@@ -14,15 +14,15 @@
 require('../config/env');
 
 function getPoolConfig() {
-  // Dedicated test database – used when a test-specific URL is provided.
-  // We prioritize DATABASE_URL_TEST regardless of NODE_ENV to ensure the test
-  // suite always connects to the isolated test database.
+  // Choose the correct database based on the environment.
   const config = require("../config");
-  if (config.databaseUrlTest) {
+
+  // Use the dedicated test database only when explicitly running tests.
+  if (process.env.NODE_ENV === "test" && config.databaseUrlTest) {
     return { connectionString: config.databaseUrlTest };
   }
 
-  // Primary database URL for dev / prod.
+  // For development or production use the primary DATABASE_URL.
   if (config.databaseUrl) {
     return { connectionString: config.databaseUrl };
   }
