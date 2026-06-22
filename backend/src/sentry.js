@@ -4,7 +4,9 @@
 // gracefully skip initialization if the DSN is not provided.
 
 const Sentry = require('@sentry/node');
-const { Integrations } = require('@sentry/tracing');
+// Use Http integration from @sentry/node (Integrations are exported under Sentry.Integrations)
+// The previous import from '@sentry/tracing' does not provide Http integration in recent versions.
+// Therefore, we reference the Http integration via Sentry.Integrations.
 // Load environment variables via centralized env module
 require('./config/env');
 
@@ -14,7 +16,8 @@ const dsn = config.sentryDsnBackend;
 if (dsn) {
   Sentry.init({
     dsn,
-    integrations: [new Integrations.Http({ tracing: true })],
+    // Enable HTTP integration for request tracing
+    integrations: [new Sentry.Integrations.Http({ tracing: true })],
     tracesSampleRate: 1.0,
     beforeSend(event) {
       // Filter out sensitive data from request and user info
@@ -29,7 +32,6 @@ if (dsn) {
           }
           event.request.headers = filteredHeaders;
         }
-        // Remove body if it contains sensitive keys
         if (event.request.body && typeof event.request.body === 'object') {
           const filteredBody = {};
           for (const [k, v] of Object.entries(event.request.body)) {
