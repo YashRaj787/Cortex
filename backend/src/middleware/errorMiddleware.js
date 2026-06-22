@@ -41,7 +41,12 @@ function errorHandler(err, _req, res, _next) {
           ? "Internal server error"
           : err.message || "Internal server error";
 
-    res.status(statusCode).json({ message });
+    // Include Sentry event ID in response when available (useful for verification)
+    const responseBody = { message };
+    if (res.sentry) {
+      responseBody.event_id = res.sentry;
+    }
+    res.status(statusCode).json(responseBody);
 }
 
 module.exports = { errorHandler };

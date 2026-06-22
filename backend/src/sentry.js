@@ -11,7 +11,9 @@ const Sentry = require('@sentry/node');
 require('./config/env');
 
 const config = require("./config");
-const dsn = config.sentryDsnBackend;
+// Prefer the explicit config value, but fall back to the raw environment variable
+// to allow setting SENTRY_DSN_BACKEND directly when the .env file does not contain it.
+const dsn = config.sentryDsnBackend || process.env.SENTRY_DSN_BACKEND;
 
 if (dsn) {
   Sentry.init({
