@@ -1,19 +1,23 @@
-// Removed Gemini SDK import
-const { OpenAI } = require("openai");
+// Removed OpenAI SDK import; using native fetch for NVIDIA NIM calls
+// OpenAI SDK was previously used to call the NIM endpoint. This implementation
+// now performs a direct HTTP request via fetch, preserving the existing retry
+// and timeout behaviour.
 // AbortController is available globally in Node.js 15+. No need to import.
 const logger = require("../utils/logger");
 
-function createClient() {
+/**
+ * Retrieve NIM configuration (API key and base URL).
+ * Returns an object with `apiKey` and `baseURL`.
+ */
+function getNimConfig() {
     const config = require("../config");
     const apiKey = config.nimApiKey;
     if (!apiKey) {
         throw new Error("NIM_API_KEY is not configured");
     }
-    // OpenAI client configured for NVIDIA NIM endpoint
-    return new OpenAI({
-        apiKey,
-        baseURL: "https://integrate.api.nvidia.com/v1",
-    });
+    // NVIDIA NIM endpoint that follows the OpenAI API contract
+    const baseURL = "https://integrate.api.nvidia.com/v1";
+    return { apiKey, baseURL };
 }
 
 /**
@@ -23,7 +27,7 @@ function createClient() {
  * @returns {Promise<string>} The summary text
  */
 async function summarizeNote(title, content) {
-    const genAI = createClient();
+    const { apiKey, baseURL } = getNimConfig();
     const textToSummarize = content?.trim();
     if (!textToSummarize) {
         throw new Error("Note has no content to summarize");
@@ -31,8 +35,8 @@ async function summarizeNote(title, content) {
 
     const prompt = `Summarize the following note in 2-3 concise sentences. Focus on the key points.\n\nTitle: ${title}\n\nContent:\n${textToSummarize}`;
 
-    // Use NVIDIA NIM model
-    const model = genAI; // OpenAI client itself will be used for chat completions
+    // Use native fetch to call NVIDIA NIM chat completions endpoint
+    const endpoint = `${baseURL}/chat/completions`;
 
     // Retry policy: maximum 2 retries for transient failures
     const maxRetries = 2;
@@ -45,14 +49,29 @@ async function summarizeNote(title, content) {
             const timeout = setTimeout(() => {
                 controller.abort();
             }, 15000);
-            const chatResponse = await model.chat.completions.create({
+            const payload = {
                 model: "openai/gpt-oss-20b",
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.7,
+            };
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiKey}`,
+                },
+                body: JSON.stringify(payload),
                 signal: controller.signal,
             });
             clearTimeout(timeout);
-            const summary = chatResponse.choices[0].message.content.trim();
+            if (!response.ok) {
+                const errorBody = await response.text();
+                const err = new Error(`NIM request failed with status ${response.status}`);
+                err.response = { status: response.status, data: errorBody };
+                throw err;
+            }
+            const chatResponse = await response.json();
+            const summary = chatResponse.choices?.[0]?.message?.content?.trim();
             if (!summary) {
                 throw new Error("Gemini returned an empty summary");
             }
