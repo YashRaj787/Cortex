@@ -17,10 +17,10 @@ export function initPostHog() {
     return;
   }
   if (window.__posthog__) return; // already initialised
+  const host = import.meta.env.VITE_POSTHOG_HOST || 'https://us.i.posthog.com';
   posthog.init(key, {
-    api_host: 'https://app.posthog.com',
+    api_host: host,
     persistence: 'localStorage',
-    // Disable auto pageview tracking – we will track manually
     capture_pageview: false,
   });
   window.__posthog__ = posthog;

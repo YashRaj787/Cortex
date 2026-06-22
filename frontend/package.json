@@ -10,11 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "posthog-js": "^1.392.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.16.0",
-    "react-toastify": "^11.1.0",
-    "posthog-js": "^1.0.0"
+    "react-toastify": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
