@@ -40,19 +40,19 @@ function createNoOpLimiter() {
   return (req, res, next) => next();
 }
 
-// 10 requests per 15 minutes per IP for authentication routes.
+// 100 requests per 15 minutes per IP for authentication routes.
 // Disabled in development (NODE_ENV=development).
 const authRateLimiter = isDevelopment
   ? createNoOpLimiter()
   : createJsonRateLimiter({
       windowMs: 15 * 60 * 1000, // 15 minutes
-      max: 10,
+      max: 100,
     });
 
-// 20 requests per hour per IP for note summarization.
+// 200 requests per hour per IP for note summarization.
 const summarizeRateLimiter = createJsonRateLimiter({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 20,
+  max: 200,
 });
 
 module.exports = {
